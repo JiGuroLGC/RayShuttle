@@ -1,0 +1,12 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio / VS Code
+.vs/
+
+# User-specific project file (machine-local, must not be committed)
+*.user
+
+# Generated node distribution (may contain invite codes — see CODEBUDDY.md)
+dist/

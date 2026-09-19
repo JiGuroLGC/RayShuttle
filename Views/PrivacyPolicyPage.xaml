@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="RayShuttle.Views.PrivacyPolicyPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="Transparent"
+    mc:Ignorable="d">
+
+    <!-- 列比与背景图一致（1.37076 : 1），内容正好落在图片左侧，不再与其重叠。
+         之前沿用首页的 2.16101 会让内容伸进图片的渐隐区，协议框看起来压在图上。 -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.37076*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Padding="{StaticResource OnboardingPadding}">
+            <!-- 左对齐并限宽，让内容与右侧图片之间留出呼吸空间。
+                 用 Stretch 而非 Left：与登录页一致，避免内容块按内容取宽（Left 下会退化为
+                 内容宽度），始终填满列宽并受 MaxWidth=600 收住，两页观感统一。 -->
+            <StackPanel x:Name="ContentBlock"
+                        MaxWidth="600"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Spacing="16">
+
+                <StackPanel x:Name="HeaderBlock" Spacing="8">
+                    <TextBlock Style="{StaticResource TextTitle}" Text="用户隐私协议" />
+                    <TextBlock Style="{StaticResource TextBody}" Text="在开始使用光梭之前，请阅读并同意以下条款。不同意将无法使用本软件。" />
+                </StackPanel>
+
+                <!-- 协议正文：内容暂留空 -->
+                <Border Padding="0" Style="{StaticResource CardSurface}">
+                    <ScrollViewer Height="220"
+                                  Padding="18"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="10">
+                            <TextBlock Style="{StaticResource TextBody}" Text="（协议正文待补充）" />
+                            <TextBlock Style="{StaticResource TextCaption}"
+                                       Text="这里将放置完整的隐私政策文本，包括收集哪些信息、如何使用、如何存储与删除，以及用户的权利与联系方式。" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <CheckBox x:Name="AgreeCheckBox"
+                          Checked="OnAgreeChanged"
+                          Unchecked="OnAgreeChanged">
+                    <TextBlock Style="{StaticResource TextBody}"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Text="我已阅读并同意《用户隐私协议》" />
+                </CheckBox>
+
+                <TextBlock x:Name="HintText"
+                           Style="{StaticResource TextCaption}"
+                           Text="勾选上方选项后才能继续。" />
+
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Button Click="OnDeclineClicked" Style="{StaticResource GhostButton}">
+                        <TextBlock Text="不同意并退出" />
+                    </Button>
+                    <Button x:Name="AcceptButton"
+                            Click="OnAcceptClicked"
+                            IsEnabled="False"
+                            Style="{StaticResource BrandButton}">
+                        <TextBlock Text="同意并继续" />
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

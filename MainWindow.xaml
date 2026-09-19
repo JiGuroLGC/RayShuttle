@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="RayShuttle.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:RayShuttle.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:RayShuttle"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="光梭 RayShuttle">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid x:Name="RootGrid" Loaded="OnRootLoaded">
+        <!--#region 背景层：深色底 + 两团氛围光 -->
+        <Grid Background="{StaticResource AppBackgroundBrush}" IsHitTestVisible="False">
+            <Ellipse Width="760"
+                     Height="760"
+                     Margin="-260,-320,0,0"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Top"
+                     Fill="{StaticResource AuroraCyanBrush}"
+                     Opacity="0.55" />
+            <Ellipse Width="820"
+                     Height="820"
+                     Margin="0,0,-300,-360"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Bottom"
+                     Fill="{StaticResource AuroraVioletBrush}"
+                     Opacity="0.45" />
+        </Grid>
+        <!--#endregion-->
+
+        <!--#region 首页背景图 -->
+        <!--
+            窗口已锁定 16:9（见 WindowAspectLock），客户区宽高比恒定，于是
+            「图片宽 = 窗口高 × 0.7499」等价于「图片宽 = 窗口宽 × 0.4218」——一个常量比例，
+            所以这里可以用星号列直接表达，不再需要任何代码计算。
+            列比 1.37076 : 1 正好把右侧 42.18% 留给图片（0.4218 = 0.7499 ÷ 16×9）。
+
+            图片铺满整个窗口高度并贴住上/右/下三边，只有左边与背景相接，
+            因此只需要一条左边溶解。修改图片时必须同步重算这两个星号值。
+        -->
+        <Grid x:Name="BackdropLayer"
+              IsHitTestVisible="False"
+              Opacity="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.37076*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="1">
+                <Image Source="ms-appx:///Assets/HomeBackdrop.png"
+                       Stretch="UniformToFill" />
+
+                <!-- 压暗蒙版 -->
+                <Rectangle Fill="{StaticResource BackdropScrimBrush}" />
+
+                <!-- 左边溶解，左端为不透明底色 -->
+                <Rectangle Fill="{StaticResource BackdropLeftFadeBrush}" />
+            </Grid>
+        </Grid>
+        <!--#endregion-->
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!--#region 自定义标题栏 -->
+            <Grid x:Name="AppTitleBar"
+                  Grid.Row="0"
+                  Height="46"
+                  Padding="22,0,12,0">
+                <StackPanel HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal"
+                            Spacing="9">
+                    <!-- 品牌标记：一枚渐变光点 -->
+                    <Grid Width="17" Height="17">
+                        <Ellipse Fill="{StaticResource BrandGradientDiagonalBrush}" />
+                        <Ellipse Width="6"
+                                 Height="6"
+                                 Fill="#FF04121E"
+                                 Opacity="0.55" />
+                    </Grid>
+                    <TextBlock VerticalAlignment="Center"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Text="光梭" />
+                    <TextBlock VerticalAlignment="Center"
+                               FontSize="11"
+                               Foreground="{StaticResource TextTertiaryBrush}"
+                               Text="RayShuttle" />
+                </StackPanel>
+            </Grid>
+            <!--#endregion-->
+
+            <!--#region 主界面 + 悬浮侧栏 + 引导层 -->
+            <Grid Grid.Row="1">
+                <!-- 主界面：隐私协议与登录都完成后才显示（引导层会先盖住它）。
+                     初始隐藏是为了避免启动瞬间闪一下主界面。 -->
+                <Grid x:Name="MainShell" Visibility="Collapsed">
+                    <!-- 不设左边距：页面自行用 PagePadding 让开侧栏，
+                         这样页面宽度等于窗口宽度，星号比例才能精确对应窗口比例。 -->
+                    <Frame x:Name="ContentFrame" Background="Transparent" />
+
+                    <!-- 悬浮侧栏：脱离窗口边缘，靠玻璃质感与投影浮在背景之上。
+                         宽度 80 = 导航项 60 + 内边距 16 + 边框 2，两侧各余 1px。 -->
+                    <Border x:Name="Sidebar"
+                            Width="80"
+                            Margin="22,0,0,0"
+                            Padding="8"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Background="{StaticResource GlassCardBrush}"
+                            BorderBrush="{StaticResource GlassBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource SidebarCornerRadius}"
+                            Translation="0,0,28">
+                        <Border.Shadow>
+                            <ThemeShadow />
+                        </Border.Shadow>
+
+                        <Grid x:Name="SidebarInner" SizeChanged="OnSidebarSizeChanged">
+                            <!-- 选中指示块，位置由代码按当前项计算并做位移动画 -->
+                            <Border x:Name="Indicator"
+                                    Width="60"
+                                    Height="58"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Top"
+                                    Background="{StaticResource SidebarIndicatorBrush}"
+                                    BorderBrush="{StaticResource SidebarIndicatorBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="{StaticResource SidebarItemCornerRadius}"
+                                    IsHitTestVisible="False">
+                                <Border.RenderTransform>
+                                    <TranslateTransform x:Name="IndicatorOffset" />
+                                </Border.RenderTransform>
+                            </Border>
+
+                            <StackPanel x:Name="SidebarItemsPanel" Spacing="6">
+                                <controls:SidebarItem x:Name="HomeItem"
+                                                      Clicked="OnHomeItemClicked"
+                                                      Glyph="&#xE80F;"
+                                                      Label="首页" />
+                                <controls:SidebarItem x:Name="ServersItem"
+                                                      Clicked="OnServersItemClicked"
+                                                      Glyph="&#xE774;"
+                                                      Label="节点" />
+                                <controls:SidebarItem x:Name="SettingsItem"
+                                                      Clicked="OnSettingsItemClicked"
+                                                      Glyph="&#xE713;"
+                                                      Label="设置" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- 引导层：隐私协议 → 登录。未完成前主界面会被隐藏，无法绕过。 -->
+                <Frame x:Name="OnboardingFrame"
+                       Background="Transparent"
+                       Visibility="Collapsed" />
+            </Grid>
+            <!--#endregion-->
+        </Grid>
+    </Grid>
+</Window>

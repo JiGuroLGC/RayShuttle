@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="RayShuttle.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RayShuttle"
+    RequestedTheme="Dark">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="ms-appx:///Themes/Brand.xaml" />
+                <ResourceDictionary Source="ms-appx:///Themes/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- 把系统强调色替换为品牌青，使开关、进度条等控件自动跟随品牌色 -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <Color x:Key="SystemAccentColor">#FF4FE3FF</Color>
+                    <Color x:Key="SystemAccentColorLight1">#FF7EEAFF</Color>
+                    <Color x:Key="SystemAccentColorLight2">#FFA7F0FF</Color>
+                    <Color x:Key="SystemAccentColorLight3">#FFCDF6FF</Color>
+                    <Color x:Key="SystemAccentColorDark1">#FF3FC8E6</Color>
+                    <Color x:Key="SystemAccentColorDark2">#FF2FA6C9</Color>
+                    <Color x:Key="SystemAccentColorDark3">#FF1F83A6</Color>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <Color x:Key="SystemAccentColor">#FF0FA6C9</Color>
+                    <Color x:Key="SystemAccentColorLight1">#FF2FBEDF</Color>
+                    <Color x:Key="SystemAccentColorLight2">#FF57D2EC</Color>
+                    <Color x:Key="SystemAccentColorLight3">#FF8AE4F6</Color>
+                    <Color x:Key="SystemAccentColorDark1">#FF0C89A6</Color>
+                    <Color x:Key="SystemAccentColorDark2">#FF096C82</Color>
+                    <Color x:Key="SystemAccentColorDark3">#FF064F5F</Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

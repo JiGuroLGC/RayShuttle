@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RayShuttle (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "RayShuttle (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

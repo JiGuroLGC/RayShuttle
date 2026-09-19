@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="RayShuttle.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:RayShuttle.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="Transparent"
+    mc:Ignorable="d">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <!--
+                窗口锁定 16:9 后客户区比例恒定，球体固定占用窗口右侧 42.18%
+                （0.4218 = 图片比例 0.7499 ÷ 16×9）。
+                球面从图片宽度 25% 处开始出现，因此内容必须收在 1 − 0.75 × 0.4218 = 68.36% 处。
+                注意基准是球面起点 25%，不是左边溶解的终点 34%——用 34% 会压到球体边缘。
+                改图片或改窗口比例时必须重算这两个星号值。
+            -->
+            <ColumnDefinition Width="2.16101*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid x:Name="ContentArea" Grid.Column="0" Padding="{StaticResource PagePadding}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!--#region 标题区 -->
+            <Grid x:Name="HeaderBlock" Grid.Row="0">
+                <StackPanel VerticalAlignment="Top" Spacing="8">
+                    <TextBlock Style="{StaticResource TextTitle}" Text="隐于光，行无界" />
+                    <TextBlock Style="{StaticResource TextBody}" Text="一键接入加密隧道，让你的每一次连接都隐没于光。" />
+                </StackPanel>
+
+                <Border HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource PillSurface}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse Width="7"
+                                 Height="7"
+                                 VerticalAlignment="Center"
+                                 Fill="{StaticResource BrandCyanBrush}" />
+                        <TextBlock x:Name="HeaderNodeText"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Text="香港" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <!--#endregion-->
+
+            <!--#region 连接光球 -->
+            <StackPanel x:Name="OrbBlock"
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="6">
+                <Border HorizontalAlignment="Center" Style="{StaticResource PillSurface}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse x:Name="StatusDot"
+                                 Width="7"
+                                 Height="7"
+                                 VerticalAlignment="Center"
+                                 Fill="{StaticResource TextTertiaryBrush}" />
+                        <TextBlock x:Name="StatusText"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Text="未连接" />
+                    </StackPanel>
+                </Border>
+
+                <controls:ConnectOrb x:Name="Orb"
+                                     HorizontalAlignment="Center"
+                                     Clicked="OnOrbClicked" />
+
+                <StackPanel HorizontalAlignment="Center" Spacing="6">
+                    <TextBlock x:Name="NodeCityText"
+                               HorizontalAlignment="Center"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Text="香港" />
+                    <TextBlock x:Name="NodeDetailText"
+                               HorizontalAlignment="Center"
+                               Style="{StaticResource TextCaption}"
+                               Text="中国香港 · 32 ms" />
+                    <!-- 连接失败原因 / 已连接时的接管方式与本地端口，都走这一行 -->
+                    <TextBlock x:Name="MessageText"
+                               MaxWidth="460"
+                               HorizontalAlignment="Center"
+                               Style="{StaticResource TextCaption}"
+                               TextAlignment="Center"
+                               Visibility="Collapsed" />
+                    <Button x:Name="ChangeNodeButton"
+                            Margin="0,4,0,0"
+                            HorizontalAlignment="Center"
+                            Click="OnChangeNodeClicked"
+                            Style="{StaticResource GhostButton}">
+                        <TextBlock Text="更换节点" />
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+            <!--#endregion-->
+
+            <!--#region 实时指标 -->
+            <!-- 窗口锁定等比后内容宽度下限已有保证，四张卡始终放得下，无需重排 -->
+            <Grid x:Name="MetricsBlock"
+                  Grid.Row="2"
+                  ColumnSpacing="14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="7">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="{StaticResource BrandCyanBrush}"
+                                       Text="↓" />
+                            <TextBlock VerticalAlignment="Center"
+                                       Style="{StaticResource TextOverline}"
+                                       Text="下载" />
+                        </StackPanel>
+                        <TextBlock x:Name="DownloadValue"
+                                   Style="{StaticResource TextMetric}"
+                                   Text="--" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="7">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="{StaticResource BrandVioletBrush}"
+                                       Text="↑" />
+                            <TextBlock VerticalAlignment="Center"
+                                       Style="{StaticResource TextOverline}"
+                                       Text="上传" />
+                        </StackPanel>
+                        <TextBlock x:Name="UploadValue"
+                                   Style="{StaticResource TextMetric}"
+                                   Text="--" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="7">
+                        <TextBlock Style="{StaticResource TextOverline}" Text="时长" />
+                        <TextBlock x:Name="DurationValue"
+                                   Style="{StaticResource TextMetric}"
+                                   Text="--" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="3" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="7">
+                        <TextBlock Style="{StaticResource TextOverline}" Text="延迟" />
+                        <TextBlock x:Name="LatencyValue"
+                                   Style="{StaticResource TextMetric}"
+                                   Text="--" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <!--#endregion-->
+        </Grid>
+    </Grid>
+</Page>
