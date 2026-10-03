@@ -22,18 +22,22 @@ namespace RayShuttle.Services
             "proxy-backup.txt");
 
         private bool _applied;
+        private int _httpPort;
 
         public string Name => "系统代理";
 
         /// <inheritdoc />
         public bool IsActive => _applied;
 
-        public Task ApplyAsync(string host, int port, CancellationToken cancellationToken)
+        public Task<bool> ApplyAsync(InterceptionContext context, CancellationToken cancellationToken)
         {
             if (!SystemProxyManager.IsSupported)
             {
-                return Task.CompletedTask;
+                return Task.FromResult(false);
             }
+
+            // 记下端口供健康巡检比对（见 CheckHealthAsync）。
+            _httpPort = context.HttpPort;
 
             // 先备份再改。备份只在「当前没有备份」时写，避免把已接管的设置当成原始设置存下来。
             if (!File.Exists(BackupPath))
@@ -45,9 +49,9 @@ namespace RayShuttle.Services
                 }
             }
 
-            _applied = SystemProxyManager.TryWrite(SystemProxyManager.CreateEnabledSnapshot(host, port));
-            SystemProxyManager.Trace($"ApplyAsync({host}:{port}) -> TryWrite 返回 {_applied}");
-            return Task.CompletedTask;
+            _applied = SystemProxyManager.TryWrite(SystemProxyManager.CreateEnabledSnapshot(context.Host, context.HttpPort));
+            SystemProxyManager.Trace($"ApplyAsync({context.Host}:{context.HttpPort}) -> TryWrite 返回 {_applied}");
+            return Task.FromResult(_applied);
         }
 
         public Task RestoreAsync()
@@ -60,6 +64,58 @@ namespace RayShuttle.Services
 
             RestoreFromBackup();
             _applied = false;
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public Task<InterceptionHealth> CheckHealthAsync()
+        {
+            if (!_applied)
+            {
+                return Task.FromResult(new InterceptionHealth(true, null));
+            }
+
+            // 读不到当前设置时按「正常」处理：宁可漏报一次，也不要因为一次读取抖动就误判掉线、
+            // 反复重连（与 SlotGuard 原巡检语义一致）。
+            var current = SystemProxyManager.TryRead();
+            if (current is null)
+            {
+                return Task.FromResult(new InterceptionHealth(true, null));
+            }
+
+            var alive = current.Enabled
+                && current.Server.Contains($"127.0.0.1:{_httpPort}", StringComparison.Ordinal);
+
+            return Task.FromResult(alive
+                ? new InterceptionHealth(true, null)
+                : new InterceptionHealth(false, "系统代理设置被其它程序改回去了，流量已不再经过光梭。"));
+        }
+
+        /// <summary>
+        /// 供 TUN 模式使用的互斥动作：把当前系统代理（若有）备份后禁用，
+        /// 避免流量同时走 TUN 与旧系统代理形成双重代理。恢复走 <see cref="RestoreAsync"/>。
+        /// </summary>
+        public Task DisableWithBackupAsync()
+        {
+            if (!SystemProxyManager.IsSupported)
+            {
+                return Task.CompletedTask;
+            }
+
+            var current = SystemProxyManager.TryRead();
+            if (current is not { Enabled: true })
+            {
+                return Task.CompletedTask;
+            }
+
+            if (!File.Exists(BackupPath))
+            {
+                WriteBackup(current);
+            }
+
+            SystemProxyManager.Trace("DisableWithBackupAsync -> 禁用系统代理（已备份）");
+            SystemProxyManager.TryWrite(new SystemProxySnapshot(false, string.Empty, string.Empty));
+            _applied = true; // 让 RestoreAsync 按正常路径恢复。
             return Task.CompletedTask;
         }
 

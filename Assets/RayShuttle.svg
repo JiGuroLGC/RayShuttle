@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    光梭 RayShuttle 品牌图标（矢量母版）。
+    与 Themes/Brand.xaml 的 BrandGradientDiagonalBrush、开屏遮罩里的品牌光点、
+    tools/make_icon.py 的光栅输出一致。
+    改品牌色时：这里、Brand.xaml、make_icon.py 三处一起改，再重跑 make_icon.py 生成位图。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="rayshuttle-body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4FE3FF"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+  </defs>
+  <!-- 渐变圆盘 -->
+  <circle cx="128" cy="128" r="128" fill="url(#rayshuttle-body)"/>
+  <!-- 中心暗核：实心圆（不是径向渐变），半径 = 128 × 26/84 -->
+  <circle cx="128" cy="128" r="39.62" fill="#04121E" fill-opacity="0.62"/>
+</svg>

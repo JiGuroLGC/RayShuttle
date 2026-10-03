@@ -43,7 +43,17 @@ namespace RayShuttle.Services
             return Array.IndexOf(Schemes, scheme) >= 0;
         }
 
-        public static bool TryParse(string? link, out ProxyNode? node)
+        /// <param name="idOverride">
+        /// 覆盖节点标识。云端下发的节点用它把 id 固定到「通道 + 序号」上：
+        /// 刷新会换掉整条订阅（服务器地址、uuid 都可能变），按内容算出的 id 会跟着变，
+        /// 用户选中的节点就找不回来了。
+        /// </param>
+        /// <param name="slotId">所属通道；云端下发的节点用它标记自己属于哪个账号。</param>
+        public static bool TryParse(
+            string? link,
+            out ProxyNode? node,
+            string? idOverride = null,
+            string? slotId = null)
         {
             node = null;
 
@@ -81,7 +91,8 @@ namespace RayShuttle.Services
                 return false;
             }
 
-            dto.Id = BuildStableId(scheme, dto);
+            dto.Id = string.IsNullOrWhiteSpace(idOverride) ? BuildStableId(scheme, dto) : idOverride!;
+            dto.SlotId = slotId ?? string.Empty;
 
             node = NodeFactory.Create(dto);
             return node is not null;
@@ -118,6 +129,8 @@ namespace RayShuttle.Services
                 var host = GetString(root, "host");
                 var transportText = GetString(root, "net");
                 var path = GetString(root, "path");
+                var scy = GetString(root, "scy");
+                var securityField = GetString(root, "security");
 
                 // vmess 链接把 gRPC 的 serviceName 也塞在 path 字段里，需要按传输方式区分，
                 // 否则 WS 节点会带上一个毫无意义的 serviceName。
@@ -131,8 +144,10 @@ namespace RayShuttle.Services
                     Port = GetInt(root, "port"),
                     Uuid = GetString(root, "id"),
                     AlterId = GetInt(root, "aid"),
-                    // scy 是加密方式；部分客户端把它写成 security，故互为兜底。
-                    Security = FirstNonEmpty(GetString(root, "scy"), GetString(root, "security")),
+                    // scy 才是加密方式；部分客户端把它写成 security，故互为兜底。
+                    // 但 security 有时被用来表达 TLS（值 "tls" / "reality"），那种值不能当成
+                    // cipher——否则会被原样写进 vmess 的 security 字段，生成非法配置。
+                    Security = FirstNonEmpty(scy, IsTlsValue(securityField) ? string.Empty : securityField),
                     Transport = transportText,
                     Path = isGrpc ? string.Empty : path,
                     Host = host,
@@ -141,10 +156,17 @@ namespace RayShuttle.Services
                     Mode = GetString(root, "mode"),
                     ServerName = FirstNonEmpty(GetString(root, "sni"), host),
                     Fingerprint = GetString(root, "fp"),
+                    Alpn = GetString(root, "alpn"),
                     Name = string.IsNullOrWhiteSpace(name) ? GetString(root, "ps") : name
                 };
 
-                dto.Tls = IsTlsValue(GetString(root, "tls")) || IsTlsValue(GetString(root, "security"));
+                dto.Tls = IsTlsValue(GetString(root, "tls")) || IsTlsValue(securityField);
+
+                // 标准 vmess 链接没有这个字段，但上游订阅里普遍带 skip-cert-verify：
+                // 不传过去，遇到上游那种自签 / 不匹配的证书就会直接连不上。
+                var allowInsecure = GetString(root, "allowInsecure");
+                dto.AllowInsecure = allowInsecure is "1" or "true" or "True";
+
                 return dto;
             }
         }
@@ -167,6 +189,11 @@ namespace RayShuttle.Services
             var hostHeader = Get(parameters, "host");
             var security = Get(parameters, "security");
 
+            // Trojan 定义上就是 TLS：链接未显式写 security 时默认开启，
+            // 否则会生成明文 trojan、必然连不上（部分客户端的导出会省略该参数）。
+            var tls = IsTlsValue(security)
+                || (protocol == "trojan" && string.IsNullOrEmpty(security));
+
             var dto = new NodeDto
             {
                 Protocol = protocol,
@@ -181,8 +208,15 @@ namespace RayShuttle.Services
                 Mode = Get(parameters, "mode"),
                 ServerName = FirstNonEmpty(Get(parameters, "sni"), hostHeader),
                 Fingerprint = Get(parameters, "fp"),
+                Alpn = Get(parameters, "alpn"),
                 Flow = Get(parameters, "flow"),
-                Tls = IsTlsValue(security),
+                // REALITY 不是普通 TLS：pbk（publicKey）必须原样带下去，否则会退化成 TLS 直接连不上
+                // （见 XrayConfigBuilder.BuildStreamSettings 的 reality 分支）。
+                Reality = security.Equals("reality", StringComparison.OrdinalIgnoreCase),
+                PublicKey = Get(parameters, "pbk"),
+                ShortId = Get(parameters, "sid"),
+                SpiderX = Get(parameters, "spx"),
+                Tls = tls,
                 AllowInsecure = Get(parameters, "allowInsecure") is "1" or "true" or "True"
             };
 

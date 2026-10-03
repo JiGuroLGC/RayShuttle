@@ -110,17 +110,19 @@ namespace RayShuttle.Services
                 }
 
                 // 计数语义（Xray 官方命名 inbound>>>[tag]>>>traffic>>>uplink/downlink）：
-                // - inbound 的 uplink   = 代理「发往客户端」的字节 = 用户实际「下载」到的
-                // - inbound 的 downlink = 客户端「发往代理」的字节 = 用户实际「上传」的
+                // - downlink = 数据从「广域网一侧」抵达代理、再回送给客户端的，即用户实际「下载」到的
+                // - uplink   = 客户端发出、经代理送往广域网的，即用户实际「上传」的
+                // 实测：客户端下载大文件时 downlink 快速增长，故 downlink → download、
+                // uplink → upload（此前两值写反，导致首页下载/上传卡片颠倒）。
                 // 只统计用户面 inbound，排除 api 这个管理通道自身产生的极小流量。
                 if (name.StartsWith("inbound>>>", StringComparison.Ordinal) &&
                     !name.Contains(">>>api>>>", StringComparison.Ordinal))
                 {
-                    if (name.EndsWith(">>>uplink", StringComparison.Ordinal))
+                    if (name.EndsWith(">>>downlink", StringComparison.Ordinal))
                     {
                         download += value;
                     }
-                    else if (name.EndsWith(">>>downlink", StringComparison.Ordinal))
+                    else if (name.EndsWith(">>>uplink", StringComparison.Ordinal))
                     {
                         upload += value;
                     }

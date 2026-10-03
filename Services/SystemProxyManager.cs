@@ -43,10 +43,7 @@ namespace RayShuttle.Services
         // 用来确认「应用到底有没有真的去写注册表、写了什么、写没写进去」。
         // 这是排查「灯亮了但 Windows 设置里代理仍是关」的唯一可靠手段，
         // 因为这类问题只能靠运行期证据判断，不能靠读代码推断。
-        private static readonly string TracePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "RayShuttle",
-            "proxy-trace.log");
+        private static readonly string TracePath = AppLog.PathFor("proxy-trace.log");
 
         internal static void Trace(string message)
         {

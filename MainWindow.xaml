@@ -53,7 +53,7 @@
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="1">
-                <Image Source="ms-appx:///Assets/HomeBackdrop.png"
+                <Image Source="ms-appx:///Assets/HomeBackdrop.jpg"
                        Stretch="UniformToFill" />
 
                 <!-- 压暗蒙版 -->
@@ -70,36 +70,6 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-
-            <!--#region 自定义标题栏 -->
-            <Grid x:Name="AppTitleBar"
-                  Grid.Row="0"
-                  Height="46"
-                  Padding="22,0,12,0">
-                <StackPanel HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal"
-                            Spacing="9">
-                    <!-- 品牌标记：一枚渐变光点 -->
-                    <Grid Width="17" Height="17">
-                        <Ellipse Fill="{StaticResource BrandGradientDiagonalBrush}" />
-                        <Ellipse Width="6"
-                                 Height="6"
-                                 Fill="#FF04121E"
-                                 Opacity="0.55" />
-                    </Grid>
-                    <TextBlock VerticalAlignment="Center"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               Text="光梭" />
-                    <TextBlock VerticalAlignment="Center"
-                               FontSize="11"
-                               Foreground="{StaticResource TextTertiaryBrush}"
-                               Text="RayShuttle" />
-                </StackPanel>
-            </Grid>
-            <!--#endregion-->
 
             <!--#region 主界面 + 悬浮侧栏 + 引导层 -->
             <Grid Grid.Row="1">
@@ -157,6 +127,10 @@
                                                       Clicked="OnSettingsItemClicked"
                                                       Glyph="&#xE713;"
                                                       Label="设置" />
+                                <controls:SidebarItem x:Name="StatisticsItem"
+                                                      Clicked="OnStatisticsItemClicked"
+                                                      Glyph="&#xE9D2;"
+                                                      Label="统计" />
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -166,6 +140,137 @@
                 <Frame x:Name="OnboardingFrame"
                        Background="Transparent"
                        Visibility="Collapsed" />
+            </Grid>
+            <!--#endregion-->
+
+            <!--#region 开屏遮罩：进入主界面时的品牌加载页（正常启动 / 登录成功后） -->
+            <!--
+                做成 MainWindow 内的一层遮罩（而非独立窗口）：覆盖整个客户区（含标题栏区域），
+                因此开屏期间首页背景图不会从遮罩边缘「漏」出来造成割裂；
+                开屏→主页之间也不再因第二个窗口而跳变。节点加载就在这一层之下一次性完成，
+                揭示时节点已在，无需二次加载。
+
+                **默认 Collapsed**：首次运行由欢迎页（WelcomePage）先登场，不走开屏；
+                只有「即将进入主界面」时才由 RunSplashAsync 显示它（见 MainWindow.xaml.cs）。
+            -->
+            <Grid x:Name="SplashOverlay"
+                  Grid.Row="0"
+                  Grid.RowSpan="2"
+                  Background="{StaticResource AppBackgroundBrush}"
+                  Visibility="Collapsed">
+                <!-- 氛围光 -->
+                <Grid IsHitTestVisible="False">
+                    <Ellipse Width="760"
+                             Height="760"
+                             Margin="-260,-320,0,0"
+                             HorizontalAlignment="Left"
+                             VerticalAlignment="Top"
+                             Fill="{StaticResource AuroraCyanBrush}"
+                             Opacity="0.55" />
+                    <Ellipse Width="820"
+                             Height="820"
+                             Margin="0,0,-300,-360"
+                             HorizontalAlignment="Right"
+                             VerticalAlignment="Bottom"
+                             Fill="{StaticResource AuroraVioletBrush}"
+                             Opacity="0.45" />
+                </Grid>
+
+                <!-- 居中内容：图标 → 软件名 → 标语 → 加载圈 -->
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="26">
+                    <Grid Width="104"
+                          Height="104"
+                          HorizontalAlignment="Center">
+                        <Ellipse x:Name="PulseRing"
+                                 Width="104"
+                                 Height="104"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Stroke="{StaticResource BrandCyanBrush}"
+                                 StrokeThickness="2"
+                                 Opacity="0.55" />
+                        <Ellipse Width="92"
+                                 Height="92"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Fill="{StaticResource OrbIdleGlowBrush}" />
+                        <Ellipse Width="84"
+                                 Height="84"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Fill="{StaticResource BrandGradientDiagonalBrush}" />
+                        <Ellipse Width="26"
+                                 Height="26"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Fill="#FF04121E"
+                                 Opacity="0.62" />
+                    </Grid>
+
+                    <StackPanel HorizontalAlignment="Center" Spacing="6">
+                        <TextBlock HorizontalAlignment="Center"
+                                   FontSize="30"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   Text="光梭" />
+                        <TextBlock HorizontalAlignment="Center"
+                                   CharacterSpacing="120"
+                                   FontSize="13"
+                                   Foreground="{StaticResource TextTertiaryBrush}"
+                                   Text="RAYSHUTTLE" />
+                    </StackPanel>
+
+                    <TextBlock HorizontalAlignment="Center"
+                               Style="{StaticResource TextBody}"
+                               Text="隐于光，行无界" />
+
+                    <ProgressRing Width="30"
+                                  Height="30"
+                                  HorizontalAlignment="Center"
+                                  IsActive="True"
+                                  Foreground="{StaticResource BrandCyanBrush}" />
+                </StackPanel>
+            </Grid>
+            <!--#endregion-->
+
+            <!--#region 自定义标题栏 -->
+            <!--
+                声明在 SplashOverlay 之后：**刻意让顶栏浮在开屏遮罩之上**。
+                遮罩从 Opacity=0 淡入的 620ms 里，若顶栏被它盖住，品牌字会「先露出、
+                再被渐渐覆盖」，开屏结束又随主界面重现——形成两次跳闪。
+                顶栏浮在遮罩上则全程可见，零跳变；且遮罩本身 RowSpan=2、背景不透明，
+                顶栏（透明底）透出的是遮罩的黑底与氛围光而非 Mica 亮底，不会有分界线；
+                遮罩内的氛围光与窗口背景层那份同位置同参数，淡出时是两层同色渐替，依然连续。
+                附带效果：遮罩不再挡住顶栏的拖拽命中，开屏期间窗口也可以拖动。
+            -->
+            <Grid x:Name="AppTitleBar"
+                  Grid.Row="0"
+                  Height="46"
+                  Padding="22,0,12,0">
+                <StackPanel HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal"
+                            Spacing="9">
+                    <!-- 品牌标记：一枚渐变光点 -->
+                    <Grid Width="17" Height="17">
+                        <Ellipse Fill="{StaticResource BrandGradientDiagonalBrush}" />
+                        <Ellipse Width="6"
+                                 Height="6"
+                                 Fill="#FF04121E"
+                                 Opacity="0.55" />
+                    </Grid>
+                    <TextBlock VerticalAlignment="Center"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Text="光梭" />
+                    <TextBlock VerticalAlignment="Center"
+                               FontSize="11"
+                               Foreground="{StaticResource TextTertiaryBrush}"
+                               Text="RayShuttle" />
+                </StackPanel>
             </Grid>
             <!--#endregion-->
         </Grid>

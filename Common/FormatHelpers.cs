@@ -34,5 +34,39 @@ namespace RayShuttle.Common
 
             return $"{value:0} B/s";
         }
+
+        /// <summary>
+        /// 把字节数格式化成带单位的数据量，例如 "1.2 GB" / "340 MB" / "12.3 KB" / "0 B"。
+        ///
+        /// 与 <see cref="FormatRate"/> 的区别是**不带 /s**，用于「本次会话用了多少」这类累计值。
+        /// </summary>
+        public static string FormatBytes(long bytes)
+        {
+            const long KB = 1024;
+            const long MB = KB * 1024;
+            const long GB = MB * 1024;
+
+            if (bytes <= 0)
+            {
+                return "0 B";
+            }
+
+            if (bytes >= GB)
+            {
+                return $"{bytes / (double)GB:0.00} GB";
+            }
+
+            if (bytes >= MB)
+            {
+                return $"{bytes / (double)MB:0.0} MB";
+            }
+
+            if (bytes >= KB)
+            {
+                return $"{bytes / (double)KB:0.0} KB";
+            }
+
+            return $"{bytes} B";
+        }
     }
 }

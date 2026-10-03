@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace RayShuttle.Models
 {
@@ -30,11 +32,23 @@ namespace RayShuttle.Models
     /// <summary>
     /// 一个可连接的节点。字段直接对应 Xray outbound 配置所需的参数，
     /// 由加密节点文件解析而来（见 Services/NodeRepository）。
+    ///
+    /// 除 <see cref="LatencyMs"/> / <see cref="IsRecommended"/> 外均为不可变：
+    /// 延迟是连接后续测出来的，需要回写；其余由解析一次性确定。
+    /// 实现 <see cref="INotifyPropertyChanged"/> 让节点列表的胶囊能就地刷新延迟，无需重建列表。
     /// </summary>
-    public sealed class ProxyNode
+    public sealed class ProxyNode : INotifyPropertyChanged
     {
         /// <summary>节点标识，Xray 配置里用作 outbound tag，也用于记住用户选中的节点。</summary>
         public string Id { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 所属通道（s1…s7）。一个通道 = 供应商的一个账号 = 5GB + 7 天。
+        ///
+        /// 通道内的节点会随刷新整组换掉（换账号就换订阅），所以**选中项必须按通道记**，
+        /// 不能按节点内容记——否则刷新一次，用户选中的节点就找不回来了。
+        /// </summary>
+        public string SlotId { get; init; } = string.Empty;
 
         /// <summary>显示名，通常是城市。</summary>
         public string Name { get; init; } = string.Empty;
@@ -99,15 +113,110 @@ namespace RayShuttle.Models
         /// <summary>是否跳过证书校验。**默认 false，不建议开启**，仅为自签证书场景保留。</summary>
         public bool AllowInsecure { get; init; }
 
-        /// <summary>uTLS 指纹，例如 chrome。留空表示不使用。</summary>
+        /// <summary>uTLS 指纹，例如 chrome / ios。留空表示不使用。</summary>
         public string Fingerprint { get; init; } = string.Empty;
+
+        /// <summary>
+        /// TLS ALPN 列表（逗号分隔，例如 "h2,http/1.1"）。留空表示不显式指定。
+        /// 部分 CDN 前置的 ws / grpc + TLS 节点要求客户端声明 ALPN，缺失会握手失败。
+        /// </summary>
+        public string Alpn { get; init; } = string.Empty;
+
+        /// <summary>
+        /// 是否使用 REALITY（分享链接 `security=reality`）。
+        /// REALITY **不是**普通 TLS：必须写 <c>realitySettings</c> 而非 <c>tlsSettings</c>，
+        /// 且依赖 <see cref="PublicKey"/>。漏掉时握手会被服务端当成「未授权探测」转发到 fallback，
+        /// 表现为浏览器 ERR_SSL_PROTOCOL_ERROR、流量几乎为零。
+        /// </summary>
+        public bool Reality { get; init; }
+
+        /// <summary>REALITY 的 publicKey（分享链接 `pbk=`）。REALITY 下必填。</summary>
+        public string PublicKey { get; init; } = string.Empty;
+
+        /// <summary>REALITY 的 shortId（分享链接 `sid=`）。可空。</summary>
+        public string ShortId { get; init; } = string.Empty;
+
+        /// <summary>REALITY 的 spiderX（分享链接 `spx=`）。留空由内核默认 "/"。</summary>
+        public string SpiderX { get; init; } = string.Empty;
 
         // ---- 展示相关 ----
 
-        /// <summary>延迟毫秒数，0 表示尚未测得。</summary>
-        public int LatencyMs { get; init; }
+        private int _latencyMs;
 
-        public bool IsRecommended { get; init; }
+        /// <summary>延迟毫秒数，0 表示尚未测得。由延迟探测回写，因此可写并通知。</summary>
+        public int LatencyMs
+        {
+            get => _latencyMs;
+            set
+            {
+                if (_latencyMs == value)
+                {
+                    return;
+                }
+
+                _latencyMs = value;
+                // 广播全部属性：列表胶囊绑定的是 LatencyText / LatencyColorKey 等计算方法，
+                // 它们依赖 LatencyMs，但单独的属性名通知不会触发其重算，故直接全量刷新。
+                OnPropertyChanged(null);
+            }
+        }
+
+        private bool _isRecommended;
+
+        /// <summary>是否为综合延迟最低的「推荐」节点。探测完成后标记，因此可写并通知。</summary>
+        public bool IsRecommended
+        {
+            get => _isRecommended;
+            set
+            {
+                if (_isRecommended == value)
+                {
+                    return;
+                }
+
+                _isRecommended = value;
+                OnPropertyChanged(null);
+            }
+        }
+
+        private string _usageText = string.Empty;
+
+        /// <summary>
+        /// 所属通道的用量标签，形如「1.2 GB / 5 GB」（已用 / 总量）。
+        ///
+        /// 一个通道 = 供应商的一个账号，所以通道内的节点共用同一份用量。
+        /// 节点是先解析出来、之后才由 <see cref="Services.Provider.ProviderSlotStore"/>
+        /// 补上这个字段，因此它可写并会通知界面。
+        /// 取不到用量时是空串，界面据此不显示标签（本地文件 / 备用节点就是这种）。
+        /// </summary>
+        public string UsageText
+        {
+            get => _usageText;
+            set
+            {
+                if (_usageText == value)
+                {
+                    return;
+                }
+
+                _usageText = value;
+                OnPropertyChanged(null);
+            }
+        }
+
+        /// <summary>是否拿到了用量，决定标签显示与否。</summary>
+        public bool HasUsage => !string.IsNullOrEmpty(_usageText);
+
+        private string? _regionCode;
+
+        /// <summary>
+        /// 推断出的国家/地区代码（ISO 3166-1 alpha-2，小写，例如 hk），用于显示旗帜；
+        /// 认不出来是空串（界面回退到品牌光点）。见 <see cref="RegionCatalog"/>。
+        ///
+        /// 只依据 <see cref="Name"/> / <see cref="Country"/> / <see cref="Group"/>，它们都是
+        /// init 后不变的，所以算一次就缓存住——列表里每个节点会被反复取这个属性。
+        /// </summary>
+        public string RegionCode => _regionCode ??= RegionCatalog.Resolve(Name, Country, Group);
 
         public string LatencyText => LatencyMs <= 0 ? "--" : $"{LatencyMs} ms";
 
@@ -135,6 +244,12 @@ namespace RayShuttle.Models
             NodeTransport.Xhttp => "XHTTP",
             _ => "TCP"
         };
+
+        /// <summary>属性变化时触发；传 null 让所有绑定就地重算（LatencyText 等是计算方法）。</summary>
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     /// <summary>
@@ -168,7 +283,7 @@ namespace RayShuttle.Models
 
             foreach (var node in nodes)
             {
-                var key = string.IsNullOrWhiteSpace(node.Group) ? "其他" : node.Group;
+                var key = string.IsNullOrWhiteSpace(node.Group) ? "优选" : node.Group;
 
                 if (!index.TryGetValue(key, out var group))
                 {

@@ -27,19 +27,186 @@
                         Spacing="16">
 
                 <StackPanel x:Name="HeaderBlock" Spacing="8">
-                    <TextBlock Style="{StaticResource TextTitle}" Text="用户隐私协议" />
-                    <TextBlock Style="{StaticResource TextBody}" Text="在开始使用光梭之前，请阅读并同意以下条款。不同意将无法使用本软件。" />
+                    <TextBlock Style="{StaticResource TextTitle}" Text="用户协议" />
+                    <TextBlock Style="{StaticResource TextBody}" Text="启程之前，请先读一读这份同行约定。不同意将无法使用本软件。" />
                 </StackPanel>
 
-                <!-- 协议正文：内容暂留空 -->
+                <!-- 协议正文：BEGIN/END 之间由 tools/make_terms_xaml.py 从 用户协议.md 生成，勿手改。
+                     浏览区高度固定为 220（与改版前一致）：正文很长，靠滚动看，页面本身不跟着变高。 -->
                 <Border Padding="0" Style="{StaticResource CardSurface}">
                     <ScrollViewer Height="220"
                                   Padding="18"
                                   VerticalScrollBarVisibility="Auto">
-                        <StackPanel Spacing="10">
-                            <TextBlock Style="{StaticResource TextBody}" Text="（协议正文待补充）" />
-                            <TextBlock Style="{StaticResource TextCaption}"
-                                       Text="这里将放置完整的隐私政策文本，包括收集哪些信息、如何使用、如何存储与删除，以及用户的权利与联系方式。" />
+                        <StackPanel x:Name="TermsBlock">
+                            <!-- BEGIN TERMS -->
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>欢迎您使用 RayShuttle（中文名称"光梭"）软件及服务！本软件是一款运行于 Windows 平台的隐私与数据安全工具，用于在存在窃听、劫持或篡改风险的网络环境中保护您网络通信的机密性与完整性，由软件开发者 JiGuro（以下简称"我们"）开发并提供。为使用本软件（定义见本协议第二条）及我们提供的相关服务，您应当阅读并遵守《RayShuttle 软件许可及用户协议》（以下简称"《协议》"）。本《协议》描述我们与您之间关于本软件许可使用、本服务使用及相关方面的权利义务。请您务必审慎阅读、充分理解各条款内容，并选择接受或不接受（未成年人应在监护人的指导陪同下审阅）。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run FontWeight="SemiBold">请您特别注意本《协议》的适用范围划分：</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>1. </Run><Run FontWeight="SemiBold">本软件的源代码依据 Apache License 2.0 开源发布</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>就软件代码本身，您依 Apache License 2.0 享有使用、复制、修改、再分发（包括用于商业目的）等权利，本《协议》不对此施加任何超出 Apache License 2.0 的限制。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>2. </Run><Run FontWeight="SemiBold">本《协议》所约束的，是您对"本服务"的使用</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>即：账号的注册与登录、设备绑定与校验、以及我们向您分发加密节点配置文件的行为。上述服务并非开源内容，适用本《协议》第四章、第五章及第六章的相关约定。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>3. </Run><Run FontWeight="SemiBold">商标与品牌不在开源授权范围内</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>"RayShuttle"、"光梭"名称、标识及相关宣传语仍归我们所有，详见本《协议》第 8.1.2 条。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>除非您已阅读并接受本《协议》所有条款，否则您无权下载、安装、构建或使用本软件及其相关服务。您的下载、安装、构建、使用等行为将视为对本《协议》的接受，并同意接受本《协议》各项条款的约束。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>一、协议范围</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>1.1 协议适用主体范围</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>本《协议》是您与我们之间关于您下载、安装、构建、使用、复制本软件，以及使用 RayShuttle 相关服务所订立的法律协议。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>1.2 本许可协议指向内容</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>本《协议》项下的许可内容是指我们向用户提供的包括但不限于本软件许可及服务（以下简称"本服务"）。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>本《协议》内容同时包括我们可能不断发布的关于本服务的相关协议、业务规则等内容。上述内容一经正式发布，即为本《协议》不可分割的组成部分，您同样应当遵守。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>二、关键术语定义</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>2.1 "本软件"</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>指由我们开发的、运行于 Windows 操作系统的桌面客户端应用程序"RayShuttle"（中文名称"光梭"），包括其可执行程序、随附的动态链接库与内核组件、资源文件、配置文件、文档及其更新版本。本软件当前支持 Windows 10（版本 1809 及以上）及 Windows 11，目前仅提供 x64 平台版本。本软件的产品定性与用途见本《协议》第 3.1 条。本软件源代码依据 Apache License 2.0 开源发布，完整许可证文本见本软件随附的 LICENSE 文件。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>2.2 "内核"与"第三方组件"</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>指本软件为实现加密隧道与流量转发功能而随附或调用的第三方开源组件，主要包括 Xray 内核（Xray-core）、Wintun 以及 tun2socks 等。上述组件受各自开源许可证约束，详见本《协议》第 8.1.3 条。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>2.3 "节点配置"与"节点"</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>"节点配置"指描述网络代理服务器连接参数（包括协议、地址、端口、凭据、传输方式等）的数据集合，本软件按本《协议》第 4.1 条约定的方式获取。"节点"指依据节点配置所指向的、实际提供网络转发与代理服务的服务器。节点由第三方提供并运营，我们仅分发节点配置，不运营任何节点服务器。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>2.4 "账号凭证"</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>指您用于登录本软件并获取节点配置的凭证，包括您所使用的"用户名"与"邀请码"。邀请码为本软件的准入凭据，其生成、发放与有效性由我们或我们授权的发放方管理。节点配置与通道凭据均以加密形式存储与传输：由我们下发时，使用基于您的会话令牌派生的密钥加密；保存在您设备本地时，使用由您的账号凭证经密钥派生得到的密钥加密。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run FontWeight="SemiBold">邀请码的法律性质：</Run><Run> 邀请码系我们为软件功能测试、技术交流与学术研究等非经营性目的而无偿发放的技术准入凭据。邀请码的发放、核验及与之相关的节点配置分发不涉及任何费用、报酬、对价或其他形式的交易，我们不因此向您或任何第三方收取任何费用，亦不借此从事任何经营性活动。邀请码不构成电信业务经营行为，亦不构成经营性互联网信息服务。您不得将邀请码用于任何商业用途，详见本《协议》第 4.4 条与第 6.1.5 条。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>2.5 "设备指纹"</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>指本软件为识别您所使用的设备而生成的标识符。其生成方式为：读取您设备的系统安装标识（Windows 注册表中的 MachineGuid）、计算机名与当前 Windows 用户名，在</Run><Run FontWeight="SemiBold">您的设备本地</Run><Run>通过单向哈希算法（SHA-256，不可逆运算）处理后得到一个 64 位十六进制字符串。</Run><Run FontWeight="SemiBold">本软件不采集 CPU 标识符、主板序列号、硬盘序列号、网卡地址等硬件信息</Run><Run>（采集与上传的目的、范围及我们的处理承诺见本《协议》第 5.3 条）。设备指纹用于账号与设备的绑定及登录校验。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>2.6 "流量接管"</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>指本软件为将本机出站流量导入加密隧道而对其进行的处理方式。当前版本提供两种模式：</Run><Run FontWeight="SemiBold">系统代理模式</Run><Run>（修改您设备的操作系统系统代理设置，覆盖浏览器与大部分桌面应用）与 </Run><Run FontWeight="SemiBold">TUN 全局模式</Run><Run>（通过创建虚拟网卡并修改系统路由表接管全部流量，包括不读取系统代理的程序）。TUN 全局模式为实验性功能，其启用需要 Windows 管理员权限（本软件通过一个单独提权的辅助进程完成虚拟网卡的创建与路由配置，该进程随主程序退出而结束），并会暂时备份并停用原系统代理设置、断开时恢复。两种模式的实际效果以软件界面呈现为准。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>2.7 "不安全网络环境"</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>指缺乏有效链路加密、存在通信被窃听、流量被劫持或数据被篡改风险的公共或第三方网络环境，典型如公共 Wi-Fi 热点、共享链路、不可信的接入网络等。本软件即为在该等环境中保护您网络通信的机密性与完整性而设计。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>2.8 "加密隧道"</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>指本软件通过调用内核，在您的设备与节点服务器之间建立的加密通信链路。加密隧道的保护范围限于该段链路，其边界见本《协议》第 5.6 条。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>三、关于本软件</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>3.1 本软件是一款面向不安全网络环境的隐私与数据安全工具（技术形态为网络代理客户端）。其用途是：在您的设备与节点服务器之间建立加密隧道，对您本机的出站流量进行加密封装与转发，降低您的通信在接入网络中被窃听、劫持、篡改或泄露的风险，保护您网络通信的机密性与完整性。本软件本身不生产、运营或提供网络接入、网络转发等电信业务或互联网接入服务。本软件并非为规避网络访问控制、内容分发限制或服务的地域可用性限制而设计（用途边界见本《协议》第 5.1.4 条）。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>3.2 本软件在您的设备本地运行，通过调用随附的 Xray 内核，依据节点配置与相应的服务器建立加密连接，并对本机流量进行接管与转发，使您的出站流量在离开设备前即处于加密隧道的保护之下。本软件所提供的安全保护，其范围仅限于本机至节点服务器之间的链路，详见本《协议》第 5.6 条。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>3.3 本软件源代码依据 Apache License 2.0 授权发布。您可在本软件随附的 LICENSE 文件中查阅该许可证的完整文本。您对本软件代码的使用、复制、修改与再分发，受 Apache License 2.0 而非本《协议》约束；本《协议》仅在 Apache License 2.0 明示保留的事项（如商标、专利终止、免责声明）以及"本服务"的范围内对您具有约束力。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>3.4 本软件随附的第三方开源组件，我们仅以二进制形式分发，未对其源代码进行改动，亦不就其独创性表达主张权利；相关权利归属及许可条件以各自开源许可证为准。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>四、关于本服务</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>4.1 本服务的内容</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>本服务是指：我们向您提供本软件的下载与使用便利；在您持有有效账号凭证的前提下，向您下发经加密的节点通道凭据（一个通道对应我们在第三方节点供应商处为您准备的一个账号），由本软件凭该凭据自行向第三方节点供应商换取节点配置，据以建立加密隧道；以及为验证登录凭证、防止账号共享而提供的账号与设备绑定校验服务。我们分发的是连接参数与通道凭据，不运营任何节点服务器。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.1.1 本软件为隐私与数据安全工具（技术形态为网络代理客户端），其本身并不生产、运营或提供网络接入、网络转发等电信业务或互联网接入服务。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.1.2 我们不保证任何节点或网络服务的可用性、稳定性、安全性、合法性或性能指标，亦不对节点运营方、网络服务提供商、电信运营商的行为承担任何责任。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>4.2 本服务的形式</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>您使用本服务需要下载并安装 RayShuttle 客户端软件，并使用有效的账号凭证登录。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>4.3 账号与设备绑定</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.3.1 为验证您的登录凭证并防止账号被多人共享使用，我们在您首次登录时将您的账号与该设备的设备指纹进行绑定。</Run><Run FontWeight="SemiBold">一个账号在任一时刻只绑定一台设备</Run><Run>；当您使用其它设备登录时，该次登录将被拒绝。更换电脑或重装操作系统后设备指纹会改变，需由发放方解除原绑定后，方可在新设备上登录。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.3.2 账号凭证仅限您本人及您已绑定的设备使用。您不得将用户名、邀请码出借、出租、转让、出售或以其他方式提供给第三方使用，亦不得以技术手段规避、破解本软件的准入校验或设备绑定校验机制。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.3.3 因账号凭证保管不善、交由他人使用或设备失控所产生的一切后果，由您自行承担。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.3.4 我们有权基于安全与反欺诈的需要，对异常的登录地点、频率或设备变更采取限制措施，包括但不限于要求重新验证、临时冻结或解除绑定。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>4.4 邀请码的性质与使用限制</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.4.1 邀请码仅为软件功能测试、技术交流与学术研究之目的而发放，系无偿的技术准入凭据；其发放与核验不构成电信业务经营行为，亦不构成经营性互联网信息服务。本服务不涉及任何费用结算、计费、代收代付或其他商业交易，我们不因提供本服务而从事任何经营性活动。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.4.2 您不得将邀请码、用户名或依其获取的节点配置用于任何商业用途，包括但不限于：转售、出租、有偿代开、以邀请码或节点配置为标的进行交易、为他人提供有偿代理接入或网络加速服务，或将本软件、邀请码或节点配置整合入任何面向不特定公众收费的产品、服务或经营活动。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.4.3 若我们发现或合理怀疑存在本《协议》第 4.4.2 条所述情形，我们有权立即停用相关邀请码与账号凭证、解除其设备绑定并停止向其分发节点配置，且无需就此承担任何责任，亦不影响我们依本《协议》第七章追究相应责任的权利。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>4.5 节点配置分发的性质</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.5.1 我们向您下发的仅为加密的</Run><Run FontWeight="SemiBold">通道凭据</Run><Run>，用于向第三方节点供应商换取节点配置；节点配置本身（即协议、地址、端口、凭据、传输方式等连接参数的集合）由本软件持该凭据向该供应商换取。我们不经手、不主动解密该等数据，亦不参与、不介入您与节点服务器之间的任何数据转发。网络接入与网络转发服务由节点运营方提供，我们并非该等服务的提供者。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.5.2 我们不运营、不控制、不管理任何节点服务器，不具备对节点服务器的运行安全、日志留存、应急处置等事项的实际控制能力。依据《中华人民共和国网络安全法》第二十一条等规定应由网络运营者履行的网络安全保护义务，由相应的节点运营方依法承担，我们不因分发节点配置而成为该等网络服务的网络运营者。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>4.5.3 我们仅就节点配置文件的存储与分发环节采取与其性质相适应的技术措施（加密存储与传输、访问控制），并依据本《协议》第五章就我们所处理的个人信息履行相应的保护义务。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>五、声明条款</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>5.1 用途与合规</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.1.1 您理解并同意，本软件仅为面向不安全网络环境的隐私与数据安全工具（技术形态为网络代理客户端）。您应自行负责确保对本软件的使用符合《中华人民共和国网络安全法》《中华人民共和国数据安全法》《中华人民共和国个人信息保护法》《中华人民共和国计算机信息网络国际联网管理暂行规定》以及您所在司法辖区的其他适用法律法规。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.1.2 您不得利用本软件从事任何违反法律法规、危害网络安全、侵犯他人合法权益的活动，包括但不限于：非法侵入他人网络、干扰网络正常功能、窃取网络数据；制作、传播计算机病毒、恶意程序；发布、传输违法信息；实施诈骗、赌博、侵权、诽谤等行为；以及任何其他违法行为。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.1.3 如您所在地区对网络代理、跨境联网、国际联网出入口信道的使用等活动设有许可、备案或其他监管要求，您应自行依法取得相应资质或许可，并自行承担因未取得资质而产生的一切法律后果。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.1.4 您承诺仅将本软件用于合法的安全防护目的，即在存在窃听、劫持或篡改风险的网络环境中保护您网络通信的机密性与完整性；并承诺不将本软件用于访问被中华人民共和国法律法规或主管部门依法阻断、限制访问的境外网站或网络服务，不利用本软件规避国家有关部门依法采取的网络访问管制措施、阻断措施或其他技术监管措施。您理解，本软件系面向不安全网络环境的隐私与数据安全工具，并非为规避前述管制而设计或提供，不得被用于任何绕过前述管制的用途。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.1.5 您承诺不将本软件、邀请码或依其获取的节点配置用于任何商业用途或经营性活动，具体范围见本《协议》第 4.4.2 条。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>5.2 开源组件与第三方软件</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.2.1 本软件随附的 Xray 内核（Xray-core）依据 Mozilla Public License 2.0（以下简称"MPL 2.0"）许可发布，Wintun 依据其自有许可（MPL 2.0）发布，tun2socks 依据 GNU General Public License v3.0（以下简称"GPL-3.0"）许可发布，本软件运行另可能依赖 Microsoft Windows App SDK 等运行时组件。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.2.2 您使用本软件时，须同时遵守上述开源许可证的规定。对于您修改、再分发上述开源组件的行为，由您自行依据相应开源许可证承担责任。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.2.3 本《协议》不应被解释为对任何开源许可证条款的修改、限制或替代。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>5.3 个人信息保护、设备指纹与数据说明</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>我们就本软件与本服务处理您个人信息的行为，向您作如下说明：</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.3.1 </Run><Run FontWeight="SemiBold">本地存储的信息</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>本软件在您的设备本地存储下列数据，默认位于您设备本机的用户目录下（例如 %LOCALAPPDATA%\RayShuttle\）：</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（a）账号信息：用户名、会话令牌、邀请码密文与协议同意记录。其中邀请码与会话令牌在落盘前经操作系统提供的加密机制（DPAPI）保护，仅当前 Windows 用户可解密；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（b）应用设置：服务地址、界面偏好等；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（c）节点配置缓存：经 AES-256-GCM 加密后存储；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（d）系统代理设置的备份：仅在接管系统代理期间存在，用于异常退出后恢复您的网络设置；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（e）运行与诊断日志：包括内核输出与节点加载诊断信息，其中可能包含节点服务器地址、通道凭据等连接信息，仅供本地排查问题使用；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（f）由本软件生成、供内核读取的临时配置文件。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>上述数据均为实现本软件功能所必需，不用于其它目的。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.3.2 </Run><Run FontWeight="SemiBold">为获取节点配置而对外发送的信息</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（a）登录：本软件会向我们部署的服务端发送您的用户名、邀请码与设备指纹，用于验证凭证并绑定设备；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（b）获取与刷新节点：登录后，本软件持会话令牌向我们部署的服务端请求节点通道凭据；通道即将用尽时，亦会请求更换通道。该等请求在请求头中携带会话令牌、用户名、设备指纹以及用于完整性校验的签名，</Run><Run FontWeight="SemiBold">不包含您的邀请码</Run><Run>；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（c）向第三方供应商换取节点：本软件使用所获通道凭据</Run><Run FontWeight="SemiBold">直接访问第三方节点供应商的接口</Run><Run>，查询账号用量并拉取订阅（即节点配置）。该等请求由您的设备直接发出，第三方节点供应商因此可以获知您的 IP 地址与所使用的通道；我们不经手、不代理该等请求，亦不控制该供应商的数据处理行为；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（d）上述请求同时携带本软件的名称与版本标识。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>我们不会在请求地址（URL）中携带您的用户名或邀请码。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.3.3 </Run><Run FontWeight="SemiBold">设备指纹的采集、目的与范围</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（a）采集与生成：在您登录时，本软件读取您设备的系统安装标识（Windows 注册表中的 MachineGuid）、计算机名与当前 Windows 用户名，并在</Run><Run FontWeight="SemiBold">您的设备本地</Run><Run>通过单向哈希算法（SHA-256）生成设备指纹。我们仅接收哈希结果，不接收、不存储上述原始信息。</Run><Run FontWeight="SemiBold">本软件不采集 CPU 标识符、主板序列号、硬盘序列号、网卡地址等硬件信息。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（b）上传与存储的字段：用户名（作为记录主键）、设备指纹（即账号所绑定的设备）、邀请码的哈希值（以加盐的 HMAC 计算，无法据以反推邀请码）、账号状态、账号创建时间、最后登录时间、连续失败次数，以及为您准备的节点通道凭据（通道编号与对应的供应商账号标识）。会话令牌另行保存，并附有签发时间与到期时间。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（c）使用目的：上述信息仅用于验证您的登录凭证、将您的账号与设备进行绑定、以及在登录时校验当前设备是否为已绑定设备，从而防止账号被多人共享。我们不会将上述信息用于追踪您的上网行为、进行用户画像、广告推荐，亦不会出售。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>（d）信息性质：设备指纹虽经单向哈希处理（属去标识化信息），但其与您的账号相关联、可用于识别特定设备，因此我们仍将其作为您的个人信息，按照个人信息保护相关法律法规进行保护。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.3.4 </Run><Run FontWeight="SemiBold">存储地点与跨境提供</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>为存储与校验上述账号与设备绑定信息，我们使用部署于 Cloudflare 的云服务。Cloudflare 系全球分布式网络服务提供者，上述信息可能被传输、存储于中华人民共和国境外的服务器。我们依据《中华人民共和国个人信息保护法》第三十八条、第三十九条等规定处理前述跨境提供事宜，并就跨境提供事项向您作出单独告知并取得您的单独同意。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.3.5 </Run><Run FontWeight="SemiBold">我们不采集的信息</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>本软件本身不记录、不存储、不向第三方提供您的网络访问内容（如访问的具体网址、传输的数据内容）。但请您特别注意：您的网络流量在经节点转发时，节点运营方在技术上具备获取相应流量信息的能力。您应自行评估并选择可信的节点，由此产生的信息泄露或其他风险及后果由您自行承担。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.3.6 </Run><Run FontWeight="SemiBold">您对个人信息的权利</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>就我们处理的您的个人信息，您有权行使查阅、复制、更正、补充、删除、要求解释处理规则等权利，并有权撤回同意、注销账号。您可通过本《协议》第十条所列联系方式向我们提出请求，我们将在法律法规规定的期限内予以响应。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.3.7 </Run><Run FontWeight="SemiBold">撤回同意的后果</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>您可随时在本软件"设置"界面中点击"撤回用户协议同意"。撤回后，本软件将清除本地保存的账号凭据并退回用户协议页面；我们亦将停止采集您的设备指纹，并依您的请求删除相应的设备绑定记录。在您重新阅读并同意本《协议》、且重新登录之前，您无法继续使用本软件及本服务。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.3.8 </Run><Run FontWeight="SemiBold">未成年人</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>我们不会主动收集未成年人的个人信息，但经监护人明确同意后，为提供必要的服务，我们会处理最小限度的设备绑定信息。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.3.9 本软件在分发与编译过程中未主动植入任何计算机病毒、后门程序，也未故意设置任何用于窃取用户隐私的功能。若您发现本软件存在此类问题，请及时按本《协议》第十条所列方式联系我们，我们将立即核实并采取删除、更正等措施。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>5.4 免责与责任限制</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.4.1 本软件按"现状"提供。鉴于网络环境的复杂性、第三方组件的开源属性及我们能力的局限性，我们不对本软件作出任何明示或默示的担保，包括但不限于不对其适用性、持续性、无中断、无错误、安全性及特定用途适用性作出担保。前述免责声明与 Apache License 2.0 第 7 条、第 8 条一致，并在法律允许的最大范围内适用。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.4.2 您理解并同意，在任何情况下，我们均不对因下载、安装、使用、无法使用或依赖本软件所导致的任何直接、间接、附带、特殊、惩罚性或后果性的损害（包括但不限于数据丢失、系统损坏、业务中断、利润损失、隐私泄露、法律纠纷等）承担任何责任，无论该等责任是基于合同、侵权（包括过失）、严格责任或其他法律理论产生，也无论我们是否事先被告知该等损害的可能性。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.4.3 因节点运营方、网络服务提供商、电信运营商、云服务提供者或其他第三方的原因导致的服务中断、数据泄露或损失，由该等第三方依法承担责任，我们不承担连带责任。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.5 知识产权严格受法律保护，请勿侵权。我们尊重并维护 Xray、Wintun 及其他第三方开源组件权利人的合法权益。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.6 </Run><Run FontWeight="SemiBold">安全能力的范围与限制</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>为避免对本软件安全效果产生误解，我们就其能力边界向您作如下说明：</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.6.1 本软件采用加密代理技术，通过在您的设备与节点服务器之间建立加密隧道，保护该段链路的机密性与完整性，可降低同一接入网络内（如公共 Wi-Fi 热点、共享链路等不安全网络环境）第三方窃听、劫持或篡改您流量的风险。本软件安全保护的范围仅限于本机至节点服务器之间的链路，不及于该链路之外的任何环节。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.6.2 本软件通过节点服务器转发流量，使目标站点无法直接获取您的本机IP地址，但不能提供完全的匿名性：目标站点仍可能通过应用层追踪技术识别您，节点运营方亦可能掌握您的连接记录。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.6.3 应用层追踪技术（如 Cookie、浏览器指纹、设备指纹、账号登录状态等）不受本软件影响，本软件不具备屏蔽该等追踪的能力。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.6.4 本软件不替代目标服务自身的传输层安全措施（如 HTTPS/TLS）。对于未启用加密的目标服务，节点服务器至目标站点之间的保护状况取决于该服务自身的安全措施。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.6.5 本软件不提供防病毒、防恶意软件、终端安全防护或数据备份功能，亦不保证您的设备或数据免受本地恶意程序、系统漏洞、弱口令或社会工程学攻击的侵害。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>5.6.6 本软件的实际安全效果取决于节点配置的正确性、节点运营方的可信程度以及您自身的使用环境。您应自行评估并选择可信的节点，参见本《协议》第 5.3.5 条。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>六、用户行为规范</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>6.1 禁止行为</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>除非法律允许或我们书面许可，您不得从事下列行为：</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.1.1 将您的用户名、邀请码出借、出租、转让、出售或以其他方式提供给第三方使用，或与第三方共享账号。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.1.2 以技术手段规避、破解本软件的准入校验或设备绑定校验机制，或伪造、篡改设备指纹以规避设备数量限制。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.1.3 对我们的服务器、节点源或相关网络设施发起攻击、恶意扫描、流量刷取或任何其他足以干扰服务正常运行的行为。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.1.4 利用本软件或本服务从事任何违反法律法规、政策或侵犯他人合法权益的行为。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.1.5 将邀请码、用户名或依其获取的节点配置用于任何商业用途（详见本《协议》第 4.4.2 条）。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.1.6 违反本《协议》第 5.1.4 条所述用途承诺，即利用本软件访问被依法阻断、限制访问的境外网站或网络服务，或规避国家有关部门依法采取的网络访问管制措施。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.1.7 其他未经我们明示授权、且超出 Apache License 2.0 所授予权利范围的行为。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.1.8 其他违反法律法规、政策的行为。</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>6.2 义务行为</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>接受本《协议》条款后，您有义务履行以下行为：</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.2.1 确保自身使用行为符合《中华人民共和国著作权法》《中华人民共和国计算机软件保护条例》《中华人民共和国网络安全法》《中华人民共和国数据安全法》《中华人民共和国个人信息保护法》等相关法律法规的规定，并与我们一起共同维护良好的网络环境和法律秩序。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.2.2 妥善保管您的账号凭证，并对经由该账号凭证所进行的一切活动承担责任。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.2.3 经我们通知，配合我们核实您的使用情况，或立即停止涉嫌违法违规的使用行为。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>6.2.4 若您依据 Apache License 2.0 再分发本软件或其衍生作品，应遵守 Apache License 2.0 第 4 条的要求（详见本《协议》第 8.2 条），并同时遵守本软件所含第三方组件的开源许可证。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>七、法律责任</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>7.1 用户违反本《协议》或相关的服务条款的规定，我们有权视用户的行为性质采取包括但不限于中断使用许可、停用账号凭证、解除设备绑定、停止向其分发节点配置、法律追究等措施。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>7.2 用户导致任何第三方损害的，用户应当独立承担责任。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>7.3 用户未将本软件严格用于合法合规用途的，用户应当独立承担责任。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>7.4 用户因使用本软件所造成的一切法律责任由用户自行承担。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>7.5 您必须充分了解使用本软件的用途和风险。十分必要时，我们所承担的责任仅限于软件版本的升级和公告。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>八、知识产权与开源许可</Run></TextBlock>
+                            <TextBlock Margin="0,10,0,2" Style="{StaticResource TextRowTitle}"><Run>8.1 权利声明</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>8.1.1 </Run><Run FontWeight="SemiBold">本软件代码</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>本软件源代码依据 Apache License 2.0 授权发布。在遵守 Apache License 2.0 各项条件的前提下，您得永久、全球、非独占、免版税地使用、复制、修改、再分发本软件及其衍生作品，包括用于商业目的。Apache License 2.0 的完整文本见本软件随附的 LICENSE 文件；该许可证与本《协议》就软件代码部分不一致之处，以 Apache License 2.0 为准。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>8.1.2 </Run><Run FontWeight="SemiBold">商标与品牌</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>Apache License 2.0 不授予任何商标许可。本软件的品牌名称"RayShuttle"、中文名称"光梭"、相关图形标识以及"隐于光，行无界"等宣传语均归我们所有。未经我们事先书面许可，您不得将前述名称、标识或宣传语用于您的衍生作品、产品、服务或宣传中，不得以任何方式暗示我们对该等作品、产品或服务的背书、赞助或关联。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>8.1.3 </Run><Run FontWeight="SemiBold">第三方组件</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>本软件的运行依赖于 Xray 内核（Xray-core）、Wintun、tun2socks 等第三方开源软件，并可能依赖 Microsoft Windows App SDK 等运行时组件。本《协议》不授予用户任何关于上述第三方软件的知识产权许可。用户应确保其使用这些第三方软件的行为已获得相应权利人的合法授权，并遵守相应的许可证条款；再分发时尤须遵守 GPL-3.0 组件（tun2socks）的许可要求（随附许可证文本并提供源代码获取方式，详见本软件随附的 Core\TUN-README.txt）。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>8.2 </Run><Run FontWeight="SemiBold">再分发义务</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>若您依据 Apache License 2.0 再分发本软件或其衍生作品，您应当：</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>(a) 向接收者提供一份 Apache License 2.0 的副本；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>(b) 在您修改过的文件中保留原有的著作权、专利、商标及权利归属声明，并显著标明您对文件所作的修改；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>(c) 完整保留本软件源代码中所有著作权、开源许可和所有权声明，以及本软件随附的 NOTICE 文件（如有）中的署名信息；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>(d) 遵守所涉及的所有开源许可证的条款（如涉及 MPL 2.0 许可文件的修改，须按 MPL 2.0 的要求提供相应源代码）；</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>(e) 不得使用我们的名称、标识或宣传语为该衍生作品命名或宣传，除非取得我们的书面许可。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>九、其他条款</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.1 电子文本形式的授权协议如同双方书面签署的协议一样，具有完全的和等同的法律效力。您使用本软件或本服务即视为您已阅读并同意受本《协议》的约束。本《协议》许可范围以外的行为，将直接违反本授权协议并构成侵权，我们有权随时终止授权，责令停止损害，并保留追究相关责任的权力。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.2 我们有权在必要时修改本《协议》条款。您可以在本软件的最新版本中查阅相关协议条款。本《协议》条款变更后，如果您继续使用本软件，即视为您已接受修改后的协议。如果您不接受修改后的协议，应当停止使用本软件。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.3 本《协议》签订地为中华人民共和国江西省抚州市临川区。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.4 本《协议》的成立、生效、履行、解释及纠纷解决，适用中华人民共和国大陆地区法律（不包括冲突法）。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.5 若您和我们之间发生任何纠纷或争议，首先应友好协商解决；协商不成的，您同意将纠纷或争议提交本《协议》签订地有管辖权的人民法院管辖。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.6 本《协议》条款无论因何种原因部分无效或不可执行，其余条款仍有效，对双方具有约束力。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.7 本《协议》所有条款的标题仅为阅读方便，本身并无实际涵义，不能作为本《协议》涵义解释的依据。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.8 在首次运行本软件时，您将被强制要求通过本软件提供的交互界面完整阅读本《协议》内容，并需主动勾选"同意"或点击"我已阅读并同意"等类似选项，明确同意本声明内容。您一旦运行或继续使用本软件，即视为已仔细阅读、完全理解且同意接受本《协议》的全部内容。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.9 若您对本《协议》存在任何异议，您可以随时在本软件"设置"界面中点击"撤回用户协议同意"按钮，并在确认后完成撤回。该行为一经完成，即代表您取消了对本《协议》的同意状态，本软件将清除本地账号凭据并退回用户协议页面；在您重新同意本《协议》并重新登录之前，您不能继续使用本软件及本服务。此时，您亦可从所有设备中彻底删除本软件及其所有副本、修改版本。</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>9.10 我们保留对本《协议》的最终解释权。</Run></TextBlock>
+                            <TextBlock Margin="0,18,0,2" Style="{StaticResource TextSubtitle}"><Run>十、联系方式</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>所有有关本《协议》及本软件的疑问、通知、要求或请求（包括个人信息查阅、更正、删除及撤回同意的请求），请发送至我们的邮箱：JiGuroLiu@qq.com</Run></TextBlock>
+                            <TextBlock Margin="0,0,0,6" Style="{StaticResource TextBody}"><Run>若无特殊情况，我们将会在 7 个工作日内回复您。</Run></TextBlock>
+                            <!-- END TERMS -->
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
@@ -49,12 +216,12 @@
                           Unchecked="OnAgreeChanged">
                     <TextBlock Style="{StaticResource TextBody}"
                                Foreground="{StaticResource TextPrimaryBrush}"
-                               Text="我已阅读并同意《用户隐私协议》" />
+                               Text="我已阅读并同意《用户协议》" />
                 </CheckBox>
 
                 <TextBlock x:Name="HintText"
                            Style="{StaticResource TextCaption}"
-                           Text="勾选上方选项后才能继续。" />
+                           Text="同意后方可继续。" />
 
                 <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button Click="OnDeclineClicked" Style="{StaticResource GhostButton}">

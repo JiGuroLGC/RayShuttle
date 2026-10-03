@@ -21,6 +21,9 @@ namespace RayShuttle.Services
     {
         public string? Id { get; set; }
 
+        /// <summary>所属通道。云端下发的节点由客户端按通道填写，节点文件里可以不给。</summary>
+        public string? SlotId { get; set; }
+
         public string? Name { get; set; }
 
         public string? Group { get; set; }
@@ -63,6 +66,21 @@ namespace RayShuttle.Services
         public bool AllowInsecure { get; set; }
 
         public string? Fingerprint { get; set; }
+
+        /// <summary>TLS ALPN 列表（逗号分隔，如 "h2,http/1.1"）。留空不写。</summary>
+        public string? Alpn { get; set; }
+
+        /// <summary>是否使用 REALITY（security=reality）。</summary>
+        public bool Reality { get; set; }
+
+        /// <summary>REALITY 的 publicKey（pbk）。REALITY 下必填。</summary>
+        public string? PublicKey { get; set; }
+
+        /// <summary>REALITY 的 shortId（sid）。</summary>
+        public string? ShortId { get; set; }
+
+        /// <summary>REALITY 的 spiderX（spx）。</summary>
+        public string? SpiderX { get; set; }
 
         public int LatencyMs { get; set; }
 

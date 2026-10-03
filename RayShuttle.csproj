@@ -5,13 +5,29 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>RayShuttle</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Platforms>x86;x64;ARM64</Platforms>
-    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <!--
+      exe 的图标（资源管理器 / 任务栏）。没有它就没有 RT_ICON 资源，exe 显示成系统默认图标。
+      该 .ico 由 tools/make_icon.py 生成（品牌青色→紫色渐变光点），改了品牌色要重跑脚本。
+      注意：这里只影响 PE 里内嵌的图标；打包(MSIX)后的磁贴图标仍取 Package.appxmanifest 的
+      Assets\*Logo.png（那几张目前还是模板占位图）。
+    -->
+    <ApplicationIcon>Assets\RayShuttle.ico</ApplicationIcon>
+    <!-- 仅支持 Windows x64（分发上只放行 x64，避免误构建出 x86/ARM64 产物）。 -->
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
+    <!--
+      版本号的**唯一来源**。设置页与「复制诊断信息」都经 Common/AppInfo 读它。
+      改这里会自动派生出 AssemblyVersion / FileVersion / InformationalVersion（1.0.0 → 1.0.0.0）。
+      另外两处**静态**版本需与之保持一致（仅 MSIX / 程序集清单用，发布未打包版不参与运行期）：
+        - app.manifest 的 assemblyIdentity version
+        - Package.appxmanifest 的 Identity Version
+    -->
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,9 +49,40 @@
                    非打包运行（dotnet run）时 ms-appx:/// 指向输出根目录，没有 Assets 会取不到图。
       不要合并成一条「Content + CopyToOutputDirectory」：那样该文件会在打包布局清单
       （obj/**.layout.resfiles）里出现两次，打包会报重复文件。
+      用 JPEG（4.5MB 的 PNG 同画面转成 ~740KB；背景图不透明，无透明通道需求）。
     -->
-    <Content Include="Assets\HomeBackdrop.png" />
-    <None Include="Assets\HomeBackdrop.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\HomeBackdrop.jpg" />
+    <None Include="Assets\HomeBackdrop.jpg" CopyToOutputDirectory="PreserveNewest" />
+
+    <!--
+      应用图标。除了上面的 <ApplicationIcon> 把它内嵌进 PE，托盘图标还会在运行期按文件路径
+      载入它（`Assets\RayShuttle.ico`，见 Interop/TrayIcon.LoadIconFromFile），所以同样需要
+      「进包(Content) + 复制到输出根目录(None)」两条。两条不能合并成一条，理由同下。
+    -->
+    <Content Include="Assets\RayShuttle.ico" />
+    <None Include="Assets\RayShuttle.ico" CopyToOutputDirectory="PreserveNewest" />
+
+    <!--
+      连接 / 断开的提示音（由 tools/make_sounds.py 生成），运行期按文件路径载入
+      （见 Services/ConnectionChime）。同样两条：进包 + 复制到输出根目录。
+    -->
+    <!--
+      节点列表用的国家/地区旗帜（tools/fetch_flags.py 抓取，Twemoji / CC-BY 4.0）。
+      README.txt 是许可署名，**必须随包分发**，别删。
+    -->
+    <Content Include="Assets\flags\*.png" />
+    <None Include="Assets\flags\*.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\flags\README.txt" />
+    <None Include="Assets\flags\README.txt" CopyToOutputDirectory="PreserveNewest" />
+
+    <!-- 开发者头像：设置页用 ms-appx 引用，同样要两条。 -->
+    <Content Include="Assets\DeveloperAvatar.jpg" />
+    <None Include="Assets\DeveloperAvatar.jpg" CopyToOutputDirectory="PreserveNewest" />
+
+    <Content Include="Assets\connect.wav" />
+    <None Include="Assets\connect.wav" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\disconnect.wav" />
+    <None Include="Assets\disconnect.wav" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -44,6 +91,118 @@
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
+
+  <!--
+    TUN 提权助手（Services/Tun/ 的编排对象）：独立进程，单独提权，主程序经命名管道调用。
+    不用 ProjectReference 引用（自包含主程序引用非自包含 exe 会被 SDK 拒绝，NETSDK1150），
+    改为构建后显式以 AnyCPU 增量构建助手，并把产物拷进输出目录 TunHelper\ 子目录
+    （运行期按该路径定位，见 TunPaths）。开发构建拷的是 framework-dependent 产物
+    （要求开发机装有 .NET 8 运行时）；发布时由 PublishTunHelper 目标改为按 RID 产
+    self-contained 单文件，随发布目录分发。
+  -->
+  <Target Name="BuildAndCopyTunHelper" AfterTargets="Build">
+    <Exec Command="dotnet build &quot;$(MSBuildThisFileDirectory)..\RayShuttle.TunHelper\RayShuttle.TunHelper.csproj&quot; -c $(Configuration) -p:Platform=AnyCPU --nologo -v m" />
+    <ItemGroup>
+      <_TunHelperFiles Include="$(MSBuildThisFileDirectory)..\RayShuttle.TunHelper\bin\$(Configuration)\net8.0\*.*"
+                        Exclude="**\*.pdb" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_TunHelperFiles)" DestinationFolder="$(OutDir)TunHelper\" SkipUnchangedFiles="true" />
+  </Target>
+
+  <!--
+    发布时的助手产物：self-contained 单文件（主程序发布目录不含 .NET 共享运行时，
+    framework-dependent 助手在用户机器上找不到运行时会直接起不来）。
+    RuntimeIdentifier 由 PublishProfile（win-x86 / win-x64 / win-arm64）提供，
+    助手架构因此与主程序一致。
+  -->
+  <!--
+    在**条目注入层**排除 WinAppSDK 2.5 的 AI / 语义搜索运行时组件（onnxruntime + DirectML +
+    Microsoft.Windows.AI.* 等约 40MB）：本应用完全不调用任何 AI API。这些文件由
+    Microsoft.Windows.AI.MachineLearning 包的 targets 以 None + CopyToOutputDirectory 注入
+    （identity 是绝对路径，无法用 None Remove 直接点名），这里在 AssignTargetPaths（复制清单
+    与打包布局的共同上游）之前按文件名前缀移除——**对构建输出 / Publish / 打包全路径生效**。
+    注意写法约束：MSBuild 的 ItemGroup 内任一语句引用 %(元数据) 会令**整个 ItemGroup 按批执行**，
+    所以每条过滤语句各占一个 ItemGroup，Remove 放在最后独立的 ItemGroup 里（只删筛出来的项）。
+    若日后真要接入本地 AI 能力，删除本 target。
+  -->
+  <Target Name="ExcludeWinAppSdkAiComponents" BeforeTargets="AssignTargetPaths">
+    <ItemGroup>
+      <_RayShuttleAiFiles Include="@(None)" Condition="'%(FileName)' == 'onnxruntime'" />
+    </ItemGroup>
+    <ItemGroup>
+      <_RayShuttleAiFiles Include="@(None)" Condition="'%(FileName)' == 'DirectML'" />
+    </ItemGroup>
+    <ItemGroup>
+      <_RayShuttleAiFiles Include="@(None)" Condition="$([System.String]::Copy('%(FileName)').StartsWith('Microsoft.ML.OnnxRuntime'))" />
+    </ItemGroup>
+    <ItemGroup>
+      <_RayShuttleAiFiles Include="@(None)" Condition="$([System.String]::Copy('%(FileName)').StartsWith('Microsoft.Windows.AI'))" />
+    </ItemGroup>
+    <ItemGroup>
+      <_RayShuttleAiFiles Include="@(None)" Condition="$([System.String]::Copy('%(FileName)').StartsWith('Microsoft.Windows.Internal.AI'))" />
+    </ItemGroup>
+    <ItemGroup>
+      <_RayShuttleAiFiles Include="@(None)" Condition="$([System.String]::Copy('%(FileName)').StartsWith('Microsoft.Windows.Internal.SemanticSearch'))" />
+    </ItemGroup>
+    <ItemGroup>
+      <_RayShuttleAiFiles Include="@(None)" Condition="$([System.String]::Copy('%(FileName)').StartsWith('Microsoft.Windows.SemanticSearch'))" />
+    </ItemGroup>
+    <ItemGroup>
+      <_RayShuttleAiFiles Include="@(None)" Condition="$([System.String]::Copy('%(FileName)').StartsWith('Microsoft.Windows.Search'))" />
+    </ItemGroup>
+    <ItemGroup>
+      <_RayShuttleAiFiles Include="@(None)" Condition="$([System.String]::Copy('%(FileName)').StartsWith('Microsoft.Asg'))" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="@(_RayShuttleAiFiles)" />
+    </ItemGroup>
+  </Target>
+
+  <!--
+    双保险：无论哪条构建路径（含第三方打包工具直接取构建输出目录），构建完成后
+    AI 组件一律从输出目录删除。文件已被上面的 target 从复制清单移除时这里是 no-op。
+  -->
+  <Target Name="TrimBuildOutputAi" AfterTargets="Build">
+    <ItemGroup>
+      <_TrimmedBuildFiles Include="$(OutDir)onnxruntime.dll;
+                                   $(OutDir)DirectML.dll;
+                                   $(OutDir)Microsoft.ML.OnnxRuntime*.dll;
+                                   $(OutDir)Microsoft.Windows.AI.*;
+                                   $(OutDir)Microsoft.Windows.Internal.AI.*;
+                                   $(OutDir)Microsoft.Windows.Internal.SemanticSearch*;
+                                   $(OutDir)Microsoft.Windows.SemanticSearch*;
+                                   $(OutDir)Microsoft.Windows.Search.*;
+                                   $(OutDir)Microsoft.Asg.*" />
+    </ItemGroup>
+    <Delete Files="@(_TrimmedBuildFiles)" />
+  </Target>
+
+  <Target Name="PublishTunHelper" AfterTargets="Publish">
+    <Exec Command="dotnet publish &quot;$(MSBuildThisFileDirectory)..\RayShuttle.TunHelper\RayShuttle.TunHelper.csproj&quot; -c $(Configuration) -r $(RuntimeIdentifier) --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -p:DebugType=none -o &quot;$(PublishDir)TunHelper&quot;" />
+  </Target>
+
+  <!--
+    发布瘦身（AfterTargets=Publish，只影响发布目录，不影响开发构建）：
+    1. AI / 语义搜索组件 —— WinAppSDK 2.5 默认拖进来的运行时（onnxruntime + DirectML 合计
+       近 40MB），本应用**完全不调用任何 AI API**（Package.appxmanifest 也未声明 AI 能力），
+       整组删除，启动器不会引用它们；
+    2. RayShuttle.pdb —— 调试符号不随发布分发（真要排查时用对应 commit 的本地符号）。
+    若日后真要接入本地 AI 能力，删除此 target 并按 Package.appxmanifest 的注释补回能力声明。
+  -->
+  <Target Name="TrimPublishOutput" AfterTargets="Publish">
+    <ItemGroup>
+      <_TrimmedFiles Include="$(PublishDir)onnxruntime.dll;
+                               $(PublishDir)DirectML.dll;
+                               $(PublishDir)Microsoft.Windows.AI.*;
+                               $(PublishDir)Microsoft.Windows.Internal.AI.*;
+                               $(PublishDir)Microsoft.Windows.Internal.SemanticSearch.*;
+                               $(PublishDir)Microsoft.Windows.SemanticSearch*;
+                               $(PublishDir)Microsoft.Windows.Search.*;
+                               $(PublishDir)Microsoft.Asg.*;
+                               $(PublishDir)RayShuttle.pdb" />
+    </ItemGroup>
+    <Delete Files="@(_TrimmedFiles)" />
+  </Target>
 
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />

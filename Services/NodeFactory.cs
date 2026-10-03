@@ -43,9 +43,17 @@ namespace RayShuttle.Services
                 return null;
             }
 
+            // REALITY 少了 publicKey，内核会以 “REALITY: empty public key” 直接拒绝启动；
+            // 与其让连接在很久之后失败，不如在这里就明确拒绝这条节点。
+            if (dto.Reality && string.IsNullOrWhiteSpace(dto.PublicKey))
+            {
+                return null;
+            }
+
             return new ProxyNode
             {
                 Id = string.IsNullOrWhiteSpace(dto.Id) ? address : dto.Id.Trim(),
+                SlotId = dto.SlotId?.Trim() ?? string.Empty,
                 Name = string.IsNullOrWhiteSpace(dto.Name) ? address : dto.Name.Trim(),
                 Group = dto.Group?.Trim() ?? string.Empty,
                 Country = dto.Country?.Trim() ?? string.Empty,
@@ -67,6 +75,11 @@ namespace RayShuttle.Services
                 ServerName = dto.ServerName?.Trim() ?? string.Empty,
                 AllowInsecure = dto.AllowInsecure,
                 Fingerprint = dto.Fingerprint?.Trim() ?? string.Empty,
+                Alpn = dto.Alpn?.Trim() ?? string.Empty,
+                Reality = dto.Reality,
+                PublicKey = dto.PublicKey?.Trim() ?? string.Empty,
+                ShortId = dto.ShortId?.Trim() ?? string.Empty,
+                SpiderX = dto.SpiderX?.Trim() ?? string.Empty,
                 LatencyMs = dto.LatencyMs,
                 IsRecommended = dto.Recommended
             };

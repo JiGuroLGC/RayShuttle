@@ -29,7 +29,7 @@
 
                 <StackPanel x:Name="HeaderBlock" Spacing="8">
                     <TextBlock Style="{StaticResource TextTitle}" Text="接入光梭" />
-                    <TextBlock Style="{StaticResource TextBody}" Text="输入用户名与邀请码，开启你的光之旅程。" />
+                    <TextBlock Style="{StaticResource TextBody}" Text="凭光而行，自此启程。" />
                 </StackPanel>
 
                 <Border Style="{StaticResource CardSurface}">

@@ -113,7 +113,8 @@ namespace RayShuttle.Controls
                     Core.BorderBrush = ThemeResources.GetBrush("OrbActiveRingBrush");
                     CoreIcon.Foreground = ThemeResources.GetBrush("BrandCyanBrush");
                     CoreLabel.Foreground = ThemeResources.GetBrush("BrandCyanBrush");
-                    CoreLabel.Text = "已连接";
+                    // 中心文字表示「可执行的动作」而非状态——状态已由页面顶部胶囊展示，避免重复。
+                    CoreLabel.Text = "断开";
                     break;
 
                 default:

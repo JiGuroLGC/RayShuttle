@@ -33,7 +33,7 @@
             <Grid x:Name="HeaderBlock" Grid.Row="0">
                 <StackPanel VerticalAlignment="Top" Spacing="8">
                     <TextBlock Style="{StaticResource TextTitle}" Text="隐于光，行无界" />
-                    <TextBlock Style="{StaticResource TextBody}" Text="一键接入加密隧道，让你的每一次连接都隐没于光。" />
+                    <TextBlock Style="{StaticResource TextBody}" Text="一键点亮光路，让每一次连接都隐于光。" />
                 </StackPanel>
 
                 <Border HorizontalAlignment="Right"
@@ -67,6 +67,13 @@
                                  Height="7"
                                  VerticalAlignment="Center"
                                  Fill="{StaticResource TextTertiaryBrush}" />
+                        <ProgressRing x:Name="StatusRing"
+                                      Width="13"
+                                      Height="13"
+                                      VerticalAlignment="Center"
+                                      IsActive="False"
+                                      Visibility="Collapsed"
+                                      Foreground="{StaticResource BrandCyanBrush}" />
                         <TextBlock x:Name="StatusText"
                                    VerticalAlignment="Center"
                                    FontSize="12"
@@ -91,13 +98,22 @@
                                HorizontalAlignment="Center"
                                Style="{StaticResource TextCaption}"
                                Text="中国香港 · 32 ms" />
-                    <!-- 连接失败原因 / 已连接时的接管方式与本地端口，都走这一行 -->
+                    <!-- 连接失败原因 / 已连接时的接管方式与本地端口，都走这一行。
+                         失败时这里只有**一句短结论**，完整分级说明与内核输出在「查看详情」里。 -->
                     <TextBlock x:Name="MessageText"
                                MaxWidth="460"
                                HorizontalAlignment="Center"
                                Style="{StaticResource TextCaption}"
                                TextAlignment="Center"
                                Visibility="Collapsed" />
+                    <Button x:Name="DetailsButton"
+                            Margin="0,2,0,0"
+                            HorizontalAlignment="Center"
+                            Click="OnDetailsClicked"
+                            Visibility="Collapsed"
+                            Style="{StaticResource GhostButton}">
+                        <TextBlock Text="查看详情" />
+                    </Button>
                     <Button x:Name="ChangeNodeButton"
                             Margin="0,4,0,0"
                             HorizontalAlignment="Center"

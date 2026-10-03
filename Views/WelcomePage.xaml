@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="RayShuttle.Views.WelcomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="Transparent"
+    mc:Ignorable="d">
+
+    <!--
+        首次运行的第 0 步：欢迎页。整体元素与开屏遮罩一致（光球 + 光梭 + 标语），
+        只把底部的加载圈换成「立即使用」按钮。背景交给窗口底层的氛围光，
+        因此这里不再自绘背景，观感与开屏遮罩统一。
+    -->
+    <Grid>
+        <StackPanel x:Name="ContentBlock"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="26">
+            <Grid Width="104"
+                  Height="104"
+                  HorizontalAlignment="Center">
+                <Ellipse x:Name="PulseRing"
+                         Width="104"
+                         Height="104"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Stroke="{StaticResource BrandCyanBrush}"
+                         StrokeThickness="2"
+                         Opacity="0.55" />
+                <Ellipse Width="92"
+                         Height="92"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Fill="{StaticResource OrbIdleGlowBrush}" />
+                <Ellipse Width="84"
+                         Height="84"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Fill="{StaticResource BrandGradientDiagonalBrush}" />
+                <Ellipse Width="26"
+                         Height="26"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Fill="#FF04121E"
+                         Opacity="0.62" />
+            </Grid>
+
+            <StackPanel HorizontalAlignment="Center" Spacing="6">
+                <TextBlock HorizontalAlignment="Center"
+                           FontSize="30"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           Text="光梭" />
+                <TextBlock HorizontalAlignment="Center"
+                           CharacterSpacing="120"
+                           FontSize="13"
+                           Foreground="{StaticResource TextTertiaryBrush}"
+                           Text="RAYSHUTTLE" />
+            </StackPanel>
+
+            <TextBlock HorizontalAlignment="Center"
+                       Style="{StaticResource TextBody}"
+                       Text="隐于光，行无界" />
+
+            <Button x:Name="StartButton"
+                    MinWidth="160"
+                    HorizontalAlignment="Center"
+                    Click="OnStartClicked"
+                    Style="{StaticResource BrandButton}">
+                <TextBlock Text="立即使用" />
+            </Button>
+        </StackPanel>
+    </Grid>
+</Page>

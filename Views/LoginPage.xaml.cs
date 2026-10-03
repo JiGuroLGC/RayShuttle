@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using RayShuttle.Common;
 using RayShuttle.Services;
+using RayShuttle.Services.Api;
 using Windows.System;
 
 namespace RayShuttle.Views
@@ -12,8 +13,8 @@ namespace RayShuttle.Views
     /// <summary>
     /// 首次运行的第二步：用户名 + 邀请码。
     ///
-    /// **当前没有服务端**，邀请码只做本地格式校验，任意符合格式的码都能通过。
-    /// 接入服务端后，把校验换成请求结果即可，界面逻辑不用动。
+    /// 提交后走云端校验（<see cref="AuthService"/>）：服务端校验邀请码、账号状态与设备指纹，
+    /// 通过后才写本地状态。失败文案刻意统一，不区分「账号不存在」与「邀请码错误」。
     /// </summary>
     public sealed partial class LoginPage : Page
     {
@@ -114,16 +115,38 @@ namespace RayShuttle.Views
 
             try
             {
-                // 邀请码在写盘前就会被加密，明文不落地。
-                await AccountStore.Current.SignInAsync(userName, inviteCode);
+                var result = await AuthService.Current.SignInAsync(userName, inviteCode);
+
+                if (!result.Success)
+                {
+                    ShowError(DescribeFailure(result.Code));
+                    SignInButton.IsEnabled = true;
+                    return;
+                }
+
                 await (Shell?.RefreshOnboardingStepAsync() ?? Task.CompletedTask);
             }
             catch (Exception)
             {
-                ShowError("保存登录信息失败，请重试。");
+                ShowError("登录失败，请检查网络后重试。");
                 SignInButton.IsEnabled = true;
             }
         }
+
+        /// <summary>
+        /// 把服务端返回的细粒度 code 翻成给用户看的话。
+        ///
+        /// 「用户名或邀请码不正确」是刻意合并的两种失败：区分「账号不存在」与
+        /// 「邀请码错误」等于告诉外人某个用户名是否已注册。
+        /// </summary>
+        private static string DescribeFailure(string code) => code switch
+        {
+            ApiErrorCodes.FingerprintMismatch => "该账号已绑定其它设备，无法在本机登录。",
+            ApiErrorCodes.AccountLocked => "账号因多次失败已被临时锁定，请稍后再试。",
+            ApiErrorCodes.AccountDisabled => "账号已被停用，请联系发放方。",
+            ApiErrorCodes.Transport => "无法连接服务器，请检查网络后重试。",
+            _ => "用户名或邀请码不正确。",
+        };
 
         private void ShowError(string message)
         {

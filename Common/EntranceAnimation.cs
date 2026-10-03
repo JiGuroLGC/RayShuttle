@@ -15,6 +15,13 @@ namespace RayShuttle.Common
         private const int DefaultStepMilliseconds = 55;
         private const int DefaultDurationMilliseconds = 420;
 
+        /// <summary>
+        /// 页面入场动画**即将开始**时触发。主窗口据此让背景图等全局图层在页面元素入场的
+        /// 同一时刻就位（背景图不做动画，只对齐时刻），而不是在导航时就抢先出现。
+        /// 静态事件，订阅者是生命周期与进程一致的主窗口，无需退订。
+        /// </summary>
+        public static event EventHandler? Started;
+
         public static void Run(params FrameworkElement[] elements)
         {
             Run(DefaultOffset, DefaultStepMilliseconds, DefaultDurationMilliseconds, elements);
@@ -22,10 +29,12 @@ namespace RayShuttle.Common
 
         public static void Run(double offset, int stepMilliseconds, int durationMilliseconds, params FrameworkElement[] elements)
         {
-            if (elements is null)
+            if (elements is null || elements.Length == 0)
             {
                 return;
             }
+
+            Started?.Invoke(null, EventArgs.Empty);
 
             for (var index = 0; index < elements.Length; index++)
             {

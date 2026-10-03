@@ -11,11 +11,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--#region 文字样式 -->
+    <!--
+        不要设 TextLineBounds="Tight"：它会把行盒裁到「紧贴文字轮廓」，而中文回退字体
+        （雅黑等）的字形会超出西文字体的 tight 边界，于是字形顶部溢出行盒；一旦标题落在
+        会裁剪的容器里（如设置页的 ScrollViewer），顶部就会被切掉。用默认的 Full 行车盒最稳。
+    -->
     <Style x:Key="TextTitle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-        <Setter Property="TextLineBounds" Value="Tight" />
     </Style>
 
     <Style x:Key="TextSubtitle" TargetType="TextBlock">
@@ -230,6 +234,69 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!--
+        菜单项：给托盘右键菜单用。无边框、整行可点，悬停/按下只叠一层淡高光
+        （不用 GhostButton —— 那是有底色有描边的次级按钮，放在菜单里太重）。
+    -->
+    <Style x:Key="MenuItemButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="UseSystemFocusVisuals" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Root"
+                          Background="Transparent"
+                          CornerRadius="{TemplateBinding CornerRadius}">
+                        <Border x:Name="Fill"
+                                Background="{StaticResource SidebarHoverBrush}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Opacity="0" />
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="Center"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Foreground="{TemplateBinding Foreground}" />
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Fill"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.7" Duration="0:0:0.15" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Fill"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="1" Duration="0:0:0.08" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Root"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.4" Duration="0:0:0.15" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <!--#endregion-->
 
     <!--#region 列表项 -->
@@ -243,14 +310,116 @@
     <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="{StaticResource TextPrimaryColor}" />
     <SolidColorBrush x:Key="ListViewItemForegroundPointerOver" Color="{StaticResource TextPrimaryColor}" />
 
+    <!--
+        节点列表项。**自带模板**：默认的 ListViewItem 模板不会把悬停 / 选中底色画成圆角
+        （只设 CornerRadius 没用），所以这里用一个圆角 Border 承接高亮，
+        观感与托盘右键菜单一致。
+
+        状态名（Normal / PointerOver / Pressed / Selected / PointerOverSelected / PressedSelected）
+        是 ListViewItem 内部 GoToState 时用的**固定名字**，不能改，改了高亮就不出现。
+    -->
     <Style x:Key="NodeItemStyle" TargetType="ListViewItem">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Padding" Value="12,9" />
         <Setter Property="Margin" Value="0,2" />
         <Setter Property="MinHeight" Value="0" />
-        <Setter Property="CornerRadius" Value="12" />
         <Setter Property="Background" Value="Transparent" />
+        <Setter Property="UseSystemFocusVisuals" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListViewItem">
+                    <Grid Background="Transparent">
+                        <Border x:Name="Highlight"
+                                Background="Transparent"
+                                CornerRadius="12" />
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentTransitions="{TemplateBinding ContentTransitions}" />
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="Highlight.Background" Value="{ThemeResource ListViewItemBackgroundPointerOver}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="Highlight.Background" Value="{ThemeResource ListViewItemBackgroundPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Selected">
+                                    <VisualState.Setters>
+                                        <Setter Target="Highlight.Background" Value="{ThemeResource ListViewItemBackgroundSelected}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="PointerOverSelected">
+                                    <VisualState.Setters>
+                                        <Setter Target="Highlight.Background" Value="{ThemeResource ListViewItemBackgroundSelectedPointerOver}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="PressedSelected">
+                                    <VisualState.Setters>
+                                        <Setter Target="Highlight.Background" Value="{ThemeResource ListViewItemBackgroundSelectedPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <!-- 下面这几个是框架可能用到的状态名。缺一个不会报错，
+                                     但 GoToState 会失败并停在旧状态（高亮卡住），所以宁可都列上。 -->
+                                <VisualState x:Name="PointerOverPressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="Highlight.Background" Value="{ThemeResource ListViewItemBackgroundPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="PointerOverPressedSelected">
+                                    <VisualState.Setters>
+                                        <Setter Target="Highlight.Background" Value="{ThemeResource ListViewItemBackgroundSelectedPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="DisabledStates">
+                                <VisualState x:Name="Enabled" />
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="Highlight.Opacity" Value="0.4" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="MultiSelectStates">
+                                <VisualState x:Name="MultiSelectDisabled" />
+                                <VisualState x:Name="MultiSelectEnabled" />
+                                <VisualState x:Name="MultiSelectEnabledWithSelection" />
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ReorderingStates">
+                                <VisualState x:Name="NotReordering" />
+                                <VisualState x:Name="Reordering" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--#endregion-->
+
+    <!--#region 链接 -->
+    <!-- 覆盖主题资源即可把 HyperlinkButton 变成品牌青的细链接，不必替换模板 -->
+    <SolidColorBrush x:Key="HyperlinkButtonForeground" Color="{StaticResource BrandCyanColor}" />
+    <SolidColorBrush x:Key="HyperlinkButtonForegroundPointerOver" Color="{StaticResource BrandCyanColor}" />
+    <SolidColorBrush x:Key="HyperlinkButtonForegroundPressed" Color="{StaticResource BrandCyanColor}" />
+    <SolidColorBrush x:Key="HyperlinkButtonBackground" Color="Transparent" />
+    <SolidColorBrush x:Key="HyperlinkButtonBackgroundPointerOver" Color="#1F4FE3FF" />
+    <SolidColorBrush x:Key="HyperlinkButtonBackgroundPressed" Color="#334FE3FF" />
+    <SolidColorBrush x:Key="HyperlinkButtonBorderBrush" Color="Transparent" />
+
+    <Style x:Key="LinkButton" TargetType="HyperlinkButton">
+        <Setter Property="Foreground" Value="{StaticResource BrandCyanBrush}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="UseSystemFocusVisuals" Value="False" />
     </Style>
     <!--#endregion-->

@@ -24,6 +24,14 @@ namespace RayShuttle.Services
 
         public bool IsRunning => _process is { HasExited: false };
 
+        /// <summary>
+        /// 内核进程**自己**退出时触发（崩溃、被任务管理器结束等）。
+        ///
+        /// 我们主动 <see cref="Stop"/> 时不会触发：那会先摘掉事件再 Kill。
+        /// 上层据此把「意外掉线」与「用户主动断开」区分开——前者要自动重连，后者不该。
+        /// </summary>
+        public event EventHandler? ProcessExited;
+
         /// <summary>最近的内核输出，用于失败时展示。</summary>
         public string LastOutput
         {
@@ -61,6 +69,7 @@ namespace RayShuttle.Services
             var process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
             process.OutputDataReceived += OnOutputReceived;
             process.ErrorDataReceived += OnOutputReceived;
+            process.Exited += OnProcessExited;
 
             process.Start();
             process.BeginOutputReadLine();
@@ -111,6 +120,9 @@ namespace RayShuttle.Services
                 return;
             }
 
+            // **先摘事件再杀**：主动停止不该被上层当成「内核崩了」而去自动重连。
+            process.Exited -= OnProcessExited;
+
             try
             {
                 if (!process.HasExited)
@@ -138,6 +150,17 @@ namespace RayShuttle.Services
 
             _disposed = true;
             Stop();
+        }
+
+        private void OnProcessExited(object? sender, EventArgs e)
+        {
+            // 只认当前跟踪的那个进程：旧进程被换掉之后迟到的回调要丢掉。
+            if (!ReferenceEquals(sender, _process))
+            {
+                return;
+            }
+
+            ProcessExited?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnOutputReceived(object sender, DataReceivedEventArgs e)

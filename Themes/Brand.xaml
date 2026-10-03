@@ -36,6 +36,10 @@
     <SolidColorBrush x:Key="BrandIndigoBrush" Color="{StaticResource BrandIndigoColor}" />
     <SolidColorBrush x:Key="BrandVioletBrush" Color="{StaticResource BrandVioletColor}" />
 
+    <!-- 曲线面积填充用的低透明度同色笔刷（统计页 Sparkline 填充）。 -->
+    <SolidColorBrush x:Key="BrandCyanSoftBrush" Color="{StaticResource BrandCyanColor}" Opacity="0.16" />
+    <SolidColorBrush x:Key="BrandVioletSoftBrush" Color="{StaticResource BrandVioletColor}" Opacity="0.16" />
+
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
     <SolidColorBrush x:Key="TextTertiaryBrush" Color="{StaticResource TextTertiaryColor}" />
@@ -143,6 +147,18 @@
                   TintOpacity="0.25"
                   TintLuminosityOpacity="0.38"
                   FallbackColor="#FF131E30" />
+
+    <!--
+        独立弹窗（托盘右键菜单）专用的**实色**底与描边。
+        **弹窗里不能用上面的玻璃(亚克力)笔刷**：那些窗口没有 Mica/Acrylic 宿主背景，
+        亚克力会去混窗口的宿主底色，浅色主题下整块发白——托盘菜单那圈白边就是这么来的。
+        描边也刻意用品牌青而不是 HairlineBrush，免得看着像一道白线。
+    -->
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FF101A2C" />
+    <SolidColorBrush x:Key="PopupBorderBrush" Color="#3D4FE3FF" />
+
+    <!-- 信息提示块的底色（分流页面的 geo 提示等）。低饱和的青，浮在卡片之上不刺眼。 -->
+    <SolidColorBrush x:Key="InfoBrush" Color="#18283A" />
     <!--#endregion-->
 
     <!--#region 连接光球 -->
@@ -198,6 +214,7 @@
 
     <!--#region 圆角与间距 -->
     <CornerRadius x:Key="CardCornerRadius">14</CornerRadius>
+    <CornerRadius x:Key="CardControlCornerRadius">10</CornerRadius>
     <CornerRadius x:Key="ControlCornerRadius">10</CornerRadius>
     <CornerRadius x:Key="PillCornerRadius">999</CornerRadius>
     <CornerRadius x:Key="SidebarCornerRadius">20</CornerRadius>

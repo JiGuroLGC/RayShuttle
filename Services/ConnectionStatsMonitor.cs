@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,6 +25,20 @@ namespace RayShuttle.Services
 
         public event Action<long, long>? SpeedUpdated;
         public event Action<int?>? LatencyUpdated;
+
+        /// <summary>
+        /// 本次连接以来的总流量（下载 + 上传，字节）。
+        ///
+        /// 内核是随连接启动的，所以它的累计值就是「这条连接用了多少」——
+        /// 通道要不要换新账号，本地侧就是拿它跟通道的剩余额度比。
+        /// </summary>
+        public long TotalBytes { get; private set; }
+
+        /// <summary>本次连接以来的累计下载字节数。首页的「本次会话」用它。</summary>
+        public long DownloadBytes { get; private set; }
+
+        /// <summary>本次连接以来的累计上传字节数。</summary>
+        public long UploadBytes { get; private set; }
 
         public ConnectionStatsMonitor(string statsHost, int statsPort, Func<(string Host, int Port)?> nodeSelector)
         {
@@ -73,6 +85,9 @@ namespace RayShuttle.Services
                         _lastDownload = traffic.DownloadBytes;
                         _lastUpload = traffic.UploadBytes;
                         _lastSample = now;
+                        DownloadBytes = traffic.DownloadBytes;
+                        UploadBytes = traffic.UploadBytes;
+                        TotalBytes = traffic.DownloadBytes + traffic.UploadBytes;
                     }
                     catch (OperationCanceledException)
                     {
@@ -103,7 +118,8 @@ namespace RayShuttle.Services
                             continue;
                         }
 
-                        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+                        // 6s 覆盖「域名解析(≤3s) + 建连测量(≤2s)」；解析结果有缓存，通常远快于此。
+                        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(6));
                         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token);
 
                         var latency = await MeasureTcpLatencyAsync(node.Value.Host, node.Value.Port, linked.Token)
@@ -124,21 +140,15 @@ namespace RayShuttle.Services
             }
         }
 
-        /// <summary>对 address:port 做 TCP 连接计时，作为真实链路延迟的近似。失败返回 null。</summary>
+        /// <summary>
+        /// 对节点做一次链路延迟测量，作为真实链路延迟的近似。失败返回 null。
+        /// 实现见 <see cref="LatencyProbe"/>：解析域名并缓存、只对 IP 计时、取多次最小值——
+        /// 与节点列表的批量测速（<see cref="NodeLatencyProber"/>）共用同一套口径。
+        /// </summary>
         private static async Task<int?> MeasureTcpLatencyAsync(string host, int port, CancellationToken cancellationToken)
         {
-            try
-            {
-                var stopwatch = Stopwatch.StartNew();
-                using var client = new TcpClient();
-                await client.ConnectAsync(host, port, cancellationToken).ConfigureAwait(false);
-                stopwatch.Stop();
-                return (int)stopwatch.ElapsedMilliseconds;
-            }
-            catch
-            {
-                return null;
-            }
+            var latency = await LatencyProbe.MeasureAsync(host, port, cancellationToken).ConfigureAwait(false);
+            return latency > 0 ? latency : null;
         }
     }
 }

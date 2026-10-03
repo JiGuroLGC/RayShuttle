@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="RayShuttle.Views.ErrorDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    CloseButtonText="关闭"
+    DefaultButton="Primary"
+    PrimaryButtonText="重试">
+
+    <!--
+        连接失败的详情。刻意分四段呈现，而不是像从前那样把一大坨红字铺在首页上：
+          分级标签 → 一句话结论 → 建议 → 原始细节（可滚动、可选中）。
+        底下给一个「复制诊断信息」——用户反馈问题时不用手抄，开发者也能拿到真正有用的线索。
+    -->
+    <StackPanel Width="480" Spacing="14">
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <Border VerticalAlignment="Center"
+                    Padding="10,3"
+                    Style="{StaticResource PillSurface}">
+                <TextBlock x:Name="KindLabel"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource StatusBadBrush}" />
+            </Border>
+            <TextBlock x:Name="SummaryLabel"
+                       VerticalAlignment="Center"
+                       Style="{StaticResource TextBody}"
+                       TextWrapping="Wrap" />
+        </StackPanel>
+
+        <TextBlock x:Name="SuggestionLabel"
+                   Style="{StaticResource TextBody}"
+                   TextWrapping="Wrap"
+                   Visibility="Collapsed" />
+
+        <StackPanel x:Name="DetailSection" Spacing="6">
+            <TextBlock Style="{StaticResource TextOverline}" Text="原始细节" />
+            <!--
+                这里用实色画笔而不是 CardSurface：ContentDialog 是弹层，
+                玻璃/亚克力笔刷在这种宿主下会去混底下的窗口内容，浅色主题下会发白，
+                等宽文本贴在发白的底上很难读。
+            -->
+            <Border Background="{StaticResource PopupSurfaceBrush}"
+                    BorderBrush="{StaticResource PopupBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource ControlCornerRadius}">
+                <ScrollViewer MaxHeight="200"
+                              Padding="14"
+                              VerticalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="DetailText"
+                               FontFamily="Consolas"
+                               FontSize="12"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               IsTextSelectionEnabled="True"
+                               TextWrapping="Wrap" />
+                </ScrollViewer>
+            </Border>
+        </StackPanel>
+
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="CopyButton"
+                    Click="OnCopyClicked"
+                    Style="{StaticResource GhostButton}">
+                <StackPanel Orientation="Horizontal" Spacing="7">
+                    <FontIcon FontSize="12" Glyph="&#xE8C8;" />
+                    <TextBlock Text="复制诊断信息" />
+                </StackPanel>
+            </Button>
+
+            <TextBlock x:Name="CopyHintText"
+                       Grid.Column="1"
+                       VerticalAlignment="Center"
+                       Style="{StaticResource TextCaption}"
+                       Text="已复制到剪贴板，可直接粘贴给开发者"
+                       Visibility="Collapsed" />
+        </Grid>
+    </StackPanel>
+</ContentDialog>

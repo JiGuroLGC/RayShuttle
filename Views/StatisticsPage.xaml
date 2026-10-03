@@ -1,0 +1,258 @@
+<Page
+    x:Class="RayShuttle.Views.StatisticsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:RayShuttle.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="Transparent"
+    mc:Ignorable="d"
+    Loaded="OnLoaded"
+    Unloaded="OnUnloaded">
+
+    <!--
+        统计页。布局与其余页面一致：单列、卡片、PagePadding（无 MaxWidth 约束，卡片撑满可用宽度）。
+        本次会话随连接实时刷新；累计值来自 UsageStatsRecorder（持久化）；
+        实时速率 / 延迟曲线只保留本次运行的样本（内存），每日流量趋势则跨会话持久化。
+    -->
+    <Grid Padding="{StaticResource PagePadding}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16">
+
+                <StackPanel x:Name="HeaderBlock" Spacing="8">
+                    <TextBlock Style="{StaticResource TextTitle}" Text="统计" />
+                    <TextBlock Style="{StaticResource TextBody}"
+                               Text="每一次穿行，皆有迹可循。" />
+                </StackPanel>
+
+                <!-- 本次会话：只在连接期间显示 -->
+                <Border x:Name="SessionCard"
+                        Style="{StaticResource CardSurface}"
+                        Visibility="Collapsed">
+                    <StackPanel Spacing="12">
+                        <TextBlock Style="{StaticResource TextOverline}" Text="本次会话" />
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Style="{StaticResource TextOverline}" Text="会话流量" />
+                                    <TextBlock x:Name="SessionTrafficText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <TextBlock Style="{StaticResource TextCaption}"
+                                               Text="↓ 下载 + ↑ 上传" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Style="{StaticResource TextOverline}" Text="会话时长" />
+                                    <TextBlock x:Name="SessionDurationText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <TextBlock Style="{StaticResource TextCaption}"
+                                               Text="自本次连接起" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 累计：跨会话持久化，来源于 UsageStatsRecorder -->
+                <Border x:Name="TotalsCard" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Style="{StaticResource TextOverline}" Text="累计" />
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Style="{StaticResource TextOverline}" Text="累计连接时长" />
+                                    <TextBlock x:Name="TotalDurationText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <TextBlock Style="{StaticResource TextCaption}"
+                                               Text="跨会话累加" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Style="{StaticResource TextOverline}" Text="累计流量" />
+                                    <TextBlock x:Name="TotalTrafficText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <TextBlock Style="{StaticResource TextCaption}"
+                                               Text="↓ 下载 + ↑ 上传" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 实时速率曲线 -->
+                <Border x:Name="SpeedCard" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Style="{StaticResource TextOverline}" Text="实时速率" />
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Ellipse Width="9" Height="9" Fill="{StaticResource BrandCyanBrush}" />
+                                        <TextBlock Style="{StaticResource TextOverline}" Text="下载" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="DownSpeedText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <controls:Sparkline x:Name="DownSparkline"
+                                                      Height="84"
+                                                      Stroke="{StaticResource BrandCyanBrush}"
+                                                      StrokeWidth="2"
+                                                      Fill="{StaticResource BrandCyanSoftBrush}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="8">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Ellipse Width="9" Height="9" Fill="{StaticResource BrandVioletBrush}" />
+                                        <TextBlock Style="{StaticResource TextOverline}" Text="上传" />
+                                    </StackPanel>
+                                    <TextBlock x:Name="UpSpeedText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <controls:Sparkline x:Name="UpSparkline"
+                                                      Height="84"
+                                                      Stroke="{StaticResource BrandVioletBrush}"
+                                                      StrokeWidth="2"
+                                                      Fill="{StaticResource BrandVioletSoftBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 网络延迟波动 -->
+                <Border x:Name="LatencyCard" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Style="{StaticResource TextOverline}" Text="网络延迟波动" />
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Style="{StaticResource TextOverline}" Text="当前延迟" />
+                                    <TextBlock x:Name="LatencyCurrentText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <TextBlock Style="{StaticResource TextCaption}" Text="实时往返" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Style="{StaticResource TextOverline}" Text="区间 min / avg / max" />
+                                    <TextBlock x:Name="LatencyRangeText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <TextBlock Style="{StaticResource TextCaption}" Text="本次运行" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <Border Background="{StaticResource InfoBrush}"
+                                CornerRadius="{StaticResource CardControlCornerRadius}"
+                                Padding="14">
+                            <controls:Sparkline x:Name="LatencySparkline"
+                                              Height="84"
+                                              Stroke="{StaticResource BrandCyanBrush}"
+                                              StrokeWidth="2" />
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- 每日流量趋势：跨会话持久化 -->
+                <Border x:Name="DailyCard" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Style="{StaticResource TextOverline}" Text="每日流量趋势" />
+                        <Border Background="{StaticResource InfoBrush}"
+                                CornerRadius="{StaticResource CardControlCornerRadius}"
+                                Padding="14">
+                            <StackPanel Spacing="10">
+                                <controls:BarChart x:Name="DailyChart"
+                                                 Height="150"
+                                                 PrimaryFill="{StaticResource BrandCyanBrush}"
+                                                 SecondaryFill="{StaticResource BrandVioletBrush}" />
+                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Ellipse Width="9" Height="9" Fill="{StaticResource BrandCyanBrush}" />
+                                        <TextBlock Style="{StaticResource TextCaption}" Text="下载" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Ellipse Width="9" Height="9" Fill="{StaticResource BrandVioletBrush}" />
+                                        <TextBlock Style="{StaticResource TextCaption}" Text="上传" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Style="{StaticResource TextOverline}" Text="近 7 天流量" />
+                                    <TextBlock x:Name="WeekTrafficText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <TextBlock Style="{StaticResource TextCaption}" Text="下载 + 上传" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Background="{StaticResource InfoBrush}"
+                                    CornerRadius="{StaticResource CardControlCornerRadius}"
+                                    Padding="14">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Style="{StaticResource TextOverline}" Text="近 30 天流量" />
+                                    <TextBlock x:Name="MonthTrafficText"
+                                               Style="{StaticResource TextMetric}"
+                                               Text="--" />
+                                    <TextBlock Style="{StaticResource TextCaption}" Text="下载 + 上传" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

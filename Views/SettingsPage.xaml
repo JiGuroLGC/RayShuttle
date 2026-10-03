@@ -16,7 +16,7 @@
 
                 <StackPanel x:Name="HeaderBlock" Spacing="8">
                     <TextBlock Style="{StaticResource TextTitle}" Text="设置" />
-                    <TextBlock Style="{StaticResource TextBody}" Text="调校你的光路。以下选项目前仅呈现界面，尚未接入实际逻辑。" />
+                    <TextBlock Style="{StaticResource TextBody}" Text="调校你的光路。" />
                 </StackPanel>
 
                 <!--#region 账户 -->
@@ -47,7 +47,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="2">
                                 <TextBlock Style="{StaticResource TextRowTitle}" Text="邀请码" />
-                                <TextBlock Style="{StaticResource TextCaption}" Text="只保留末 4 位，明文不会落盘" />
+                                <TextBlock Style="{StaticResource TextCaption}" Text="请您妥善保管" />
                             </StackPanel>
                             <TextBlock x:Name="InviteCodeText"
                                        Grid.Column="1"
@@ -65,10 +65,10 @@
                 </Border>
                 <!--#endregion-->
 
-                <!--#region 节点 -->
-                <Border x:Name="NodeCard" Style="{StaticResource CardSurface}">
+                <!--#region 服务器 -->
+                <Border x:Name="ServerCard" Style="{StaticResource CardSurface}">
                     <StackPanel Spacing="16">
-                        <TextBlock Style="{StaticResource TextOverline}" Text="节点" />
+                        <TextBlock Style="{StaticResource TextOverline}" Text="服务器" />
 
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
@@ -76,37 +76,14 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="2">
-                                <TextBlock Style="{StaticResource TextRowTitle}" Text="节点源优先级" />
-                                <TextBlock x:Name="NodeSourceHintText" Style="{StaticResource TextCaption}" />
+                                <TextBlock Style="{StaticResource TextRowTitle}" Text="服务地址" />
+                                <TextBlock Style="{StaticResource TextCaption}" Text="云端 API 地址，改动后会自动重新拉取节点" />
                             </StackPanel>
-                            <ComboBox x:Name="NodeSourceBox"
-                                      Grid.Column="1"
-                                      MinWidth="240"
-                                      VerticalAlignment="Center"
-                                      SelectionChanged="OnNodeSourceChanged" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
-                <!--#endregion-->
-
-                <!--#region 连接 -->
-                <Border x:Name="ConnectionCard" Style="{StaticResource CardSurface}">
-                    <StackPanel Spacing="16">
-                        <TextBlock Style="{StaticResource TextOverline}" Text="连接" />
-
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Spacing="2">
-                                <TextBlock Style="{StaticResource TextRowTitle}" Text="启动时自动连接" />
-                                <TextBlock Style="{StaticResource TextCaption}" Text="打开光梭后立即接入上次使用的节点" />
-                            </StackPanel>
-                            <ToggleSwitch Grid.Column="1"
-                                          VerticalAlignment="Center"
-                                          OffContent=""
-                                          OnContent="" />
+                            <TextBox x:Name="ApiBaseUrlBox"
+                                     Grid.Column="1"
+                                     MinWidth="280"
+                                     VerticalAlignment="Center"
+                                     LostFocus="OnApiBaseUrlLostFocus" />
                         </Grid>
 
                         <Grid ColumnSpacing="16">
@@ -115,50 +92,16 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="2">
-                                <TextBlock Style="{StaticResource TextRowTitle}" Text="断线自动重连" />
-                                <TextBlock Style="{StaticResource TextCaption}" Text="隧道意外中断时自动恢复连接" />
+                                <TextBlock Style="{StaticResource TextRowTitle}" Text="备用服务地址" />
+                                <TextBlock Style="{StaticResource TextCaption}" Text="主地址超时或不可达时自动回退，留空则不启用" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1"
-                                          VerticalAlignment="Center"
-                                          IsOn="True"
-                                          OffContent=""
-                                          OnContent="" />
+                            <TextBox x:Name="BackupApiBaseUrlBox"
+                                     Grid.Column="1"
+                                     MinWidth="280"
+                                     VerticalAlignment="Center"
+                                     LostFocus="OnBackupApiBaseUrlLostFocus" />
                         </Grid>
 
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Spacing="2">
-                                <TextBlock Style="{StaticResource TextRowTitle}" Text="网络中断保护" />
-                                <TextBlock Style="{StaticResource TextCaption}" Text="隧道断开期间阻断全部流量，避免真实地址泄露" />
-                            </StackPanel>
-                            <ToggleSwitch Grid.Column="1"
-                                          VerticalAlignment="Center"
-                                          IsOn="True"
-                                          OffContent=""
-                                          OnContent="" />
-                        </Grid>
-
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Spacing="2">
-                                <TextBlock Style="{StaticResource TextRowTitle}" Text="分流模式" />
-                                <TextBlock Style="{StaticResource TextCaption}" Text="决定哪些流量经过加密隧道" />
-                            </StackPanel>
-                            <ComboBox Grid.Column="1"
-                                      MinWidth="164"
-                                      VerticalAlignment="Center"
-                                      SelectedIndex="0">
-                                <ComboBoxItem Content="智能分流" />
-                                <ComboBoxItem Content="全局代理" />
-                                <ComboBoxItem Content="仅指定应用" />
-                            </ComboBox>
-                        </Grid>
                     </StackPanel>
                 </Border>
                 <!--#endregion-->
@@ -175,10 +118,97 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="2">
                                 <TextBlock Style="{StaticResource TextRowTitle}" Text="开机自启" />
-                                <TextBlock Style="{StaticResource TextCaption}" Text="随系统登录静默启动光梭" />
+                                <TextBlock Style="{StaticResource TextCaption}" Text="登录系统后静默进托盘" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1"
+                            <ToggleSwitch x:Name="LaunchAtStartupSwitch"
+                                          Grid.Column="1"
                                           VerticalAlignment="Center"
+                                          Toggled="OnLaunchAtStartupToggled"
+                                          OffContent=""
+                                          OnContent="" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2">
+                                <TextBlock Style="{StaticResource TextRowTitle}" Text="启动后自动连接" />
+                                <TextBlock Style="{StaticResource TextCaption}" Text="已登录且有节点时，启动即连上上次选中的节点" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="AutoConnectSwitch"
+                                          Grid.Column="1"
+                                          VerticalAlignment="Center"
+                                          Toggled="OnAutoConnectToggled"
+                                          OffContent=""
+                                          OnContent="" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2">
+                                <TextBlock Style="{StaticResource TextRowTitle}" Text="断线自动重连" />
+                                <TextBlock Style="{StaticResource TextCaption}" Text="连接意外掉线时按退避策略自动重连" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="AutoReconnectSwitch"
+                                          Grid.Column="1"
+                                          VerticalAlignment="Center"
+                                          Toggled="OnAutoReconnectToggled"
+                                          OffContent=""
+                                          OnContent="" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2">
+                                <TextBlock Style="{StaticResource TextRowTitle}" Text="连接通知" />
+                                <TextBlock Style="{StaticResource TextCaption}" Text="连接成功、掉线、重连结果通过托盘气泡通知" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="NotificationsSwitch"
+                                          Grid.Column="1"
+                                          VerticalAlignment="Center"
+                                          Toggled="OnNotificationsToggled"
+                                          OffContent=""
+                                          OnContent="" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2">
+                                <TextBlock Style="{StaticResource TextRowTitle}" Text="提示音" />
+                                <TextBlock Style="{StaticResource TextCaption}" Text="连接成功、断开时播放提示音" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="SoundSwitch"
+                                          Grid.Column="1"
+                                          VerticalAlignment="Center"
+                                          Toggled="OnSoundToggled"
+                                          OffContent=""
+                                          OnContent="" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2">
+                                <TextBlock Style="{StaticResource TextRowTitle}" Text="TUN 全局模式（实验性）" />
+                                <TextBlock Style="{StaticResource TextCaption}" Text="接管全部流量，包括游戏等不读系统代理的程序，连接时需要管理员权限" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="TunModeSwitch"
+                                          Grid.Column="1"
+                                          VerticalAlignment="Center"
+                                          Toggled="OnTunModeToggled"
                                           OffContent=""
                                           OnContent="" />
                         </Grid>
@@ -192,9 +222,10 @@
                                 <TextBlock Style="{StaticResource TextRowTitle}" Text="关闭窗口时最小化到托盘" />
                                 <TextBlock Style="{StaticResource TextCaption}" Text="保持后台连接不中断" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1"
+                            <ToggleSwitch x:Name="MinimizeToTraySwitch"
+                                          Grid.Column="1"
                                           VerticalAlignment="Center"
-                                          IsOn="True"
+                                          Toggled="OnMinimizeToTrayToggled"
                                           OffContent=""
                                           OnContent="" />
                         </Grid>
@@ -202,45 +233,114 @@
                 </Border>
                 <!--#endregion-->
 
-                <!--#region 高级 -->
-                <Border x:Name="AdvancedCard" Style="{StaticResource CardSurface}">
-                    <StackPanel Spacing="16">
-                        <TextBlock Style="{StaticResource TextOverline}" Text="高级" />
+                <!--#region 分流 -->
+                <Border x:Name="RoutingCard" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="14">
+                        <TextBlock Style="{StaticResource TextOverline}" Text="分流" />
 
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Spacing="2">
-                                <TextBlock Style="{StaticResource TextRowTitle}" Text="传输协议" />
-                                <TextBlock Style="{StaticResource TextCaption}" Text="WireGuard 速度最快，OpenVPN 兼容性最好" />
-                            </StackPanel>
-                            <ComboBox Grid.Column="1"
-                                      MinWidth="164"
-                                      VerticalAlignment="Center"
-                                      SelectedIndex="0">
-                                <ComboBoxItem Content="WireGuard" />
-                                <ComboBoxItem Content="OpenVPN" />
-                                <ComboBoxItem Content="IKEv2" />
-                            </ComboBox>
-                        </Grid>
+                        <TextBlock Style="{StaticResource TextCaption}"
+                                   Text="决定流量走向：何处直连，何处穿行，修改后需断开重连方可生效" />
 
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Spacing="2">
-                                <TextBlock Style="{StaticResource TextRowTitle}" Text="局域网直连" />
-                                <TextBlock Style="{StaticResource TextCaption}" Text="允许访问同一局域网内的设备" />
+                        <RadioButtons x:Name="ModeButtons" SelectionChanged="OnRoutingModeChanged">
+                            <RadioButton Content="全局代理"
+                                         Tag="Global"
+                                         ToolTipService.ToolTip="除局域网与本机地址外，一律走代理" />
+                            <RadioButton Content="智能分流（绕过中国大陆）"
+                                         Tag="BypassMainland"
+                                         ToolTipService.ToolTip="大陆的站点与地址直连，其余走代理，省通道流量、国内访问更快" />
+                            <RadioButton Content="自定义规则"
+                                         Tag="Custom"
+                                         ToolTipService.ToolTip="按照自定义清单分流" />
+                        </RadioButtons>
+
+                        <!-- 智能分流的补充说明：内置清单覆盖有限，geo 文件可升级。 -->
+                        <Border x:Name="GeoHint"
+                                Padding="12,10"
+                                CornerRadius="{StaticResource CardControlCornerRadius}"
+                                Background="{StaticResource InfoBrush}"
+                                Visibility="Collapsed">
+                            <TextBlock Style="{StaticResource TextCaption}"
+                                       TextWrapping="Wrap">
+                                内置清单覆盖常见大陆站点与地址段，但不完整，把完整的 geoip.dat / geosite.dat 放进 Core 目录即可自动升级为基于 GEO 数据的规则
+                            </TextBlock>
+                        </Border>
+
+                        <!-- 自定义规则编辑区，仅 Custom 模式可见。 -->
+                        <Border x:Name="CustomPanel"
+                                Style="{StaticResource CardSurface}"
+                                Visibility="Collapsed">
+                            <StackPanel Spacing="14">
+                                <TextBlock Style="{StaticResource TextRowTitle}" Text="自定义规则" />
+                                <TextBlock Style="{StaticResource TextCaption}"
+                                           Text="每行一条，域名按后缀匹配（写 example.com 即可命中 www.example.com），IP 支持单个地址或 CIDR" />
+
+                                <StackPanel Spacing="10">
+                                    <TextBlock Style="{StaticResource TextBody}" Text="强制直连的域名" />
+                                    <TextBox x:Name="DirectDomainsBox"
+                                             AcceptsReturn="True"
+                                             IsSpellCheckEnabled="False"
+                                             TextWrapping="Wrap"
+                                             Height="96"
+                                             PlaceholderText="baidu.com&#x0a;qq.com" />
+                                </StackPanel>
+
+                                <StackPanel Spacing="10">
+                                    <TextBlock Style="{StaticResource TextBody}" Text="强制直连的 IP / CIDR" />
+                                    <TextBox x:Name="DirectAddressesBox"
+                                             AcceptsReturn="True"
+                                             IsSpellCheckEnabled="False"
+                                             TextWrapping="Wrap"
+                                             Height="72"
+                                             PlaceholderText="203.0.113.0/24&#x0a;198.51.100.7" />
+                                </StackPanel>
+
+                                <StackPanel Spacing="10">
+                                    <TextBlock Style="{StaticResource TextBody}" Text="强制走代理的域名（优先级更高）" />
+                                    <TextBox x:Name="ProxyDomainsBox"
+                                             AcceptsReturn="True"
+                                             IsSpellCheckEnabled="False"
+                                             TextWrapping="Wrap"
+                                             Height="72"
+                                             PlaceholderText="将内置清单里误判直连的域名捞回代理" />
+                                </StackPanel>
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1"
-                                          VerticalAlignment="Center"
-                                          IsOn="True"
-                                          OffContent=""
-                                          OnContent="" />
-                        </Grid>
+                        </Border>
+
+                        <Button Click="OnRoutingSaveClicked" Style="{StaticResource BrandButton}">
+                            <TextBlock Text="保存分流设置" />
+                        </Button>
+                    </StackPanel>
+                </Border>
+                <!--#endregion-->
+
+                <!--#region 开发者 -->
+                <Border x:Name="DeveloperCard" Style="{StaticResource CardSurface}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Style="{StaticResource TextOverline}" Text="开发者" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <!-- 头像：Ellipse + ImageBrush 就是圆形裁切，不必自己做 Clip -->
+                            <Ellipse Width="40"
+                                     Height="40"
+                                     VerticalAlignment="Center">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="ms-appx:///Assets/DeveloperAvatar.jpg"
+                                                Stretch="UniformToFill" />
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <TextBlock VerticalAlignment="Center"
+                                       Style="{StaticResource TextSubtitle}"
+                                       Text="JiGuro" />
+                        </StackPanel>
+
+                        <TextBlock Style="{StaticResource TextBody}" Text="光梭由 JiGuro 独立开发与维护。欢迎在 GitHub 上反馈问题或参与改进。" />
+                        <TextBlock Style="{StaticResource TextCaption}"
+                                   Text="版权所有 © 2026 JiGuro，保留所有权利。本软件源代码依 Apache License 2.0 发布；“RayShuttle”“光梭”名称及图形标识归开发者所有，该许可证不授予任何商标许可。" />
+
+                        <HyperlinkButton Style="{StaticResource LinkButton}"
+                                         Tag="https://github.com/JiGuroLGC/"
+                                         Click="OnLinkClicked"
+                                         Content="github.com/JiGuroLGC" />
                     </StackPanel>
                 </Border>
                 <!--#endregion-->
@@ -264,7 +364,35 @@
                         </StackPanel>
 
                         <TextBlock Style="{StaticResource TextBody}" Text="隐于光，行无界。" />
-                        <TextBlock Style="{StaticResource TextCaption}" Text="版本 0.1.0 · 界面预览版" />
+                        <TextBlock x:Name="VersionText"
+                                   Style="{StaticResource TextCaption}"
+                                   Text="--" />
+
+                        <HyperlinkButton Style="{StaticResource LinkButton}"
+                                         Tag="https://github.com/JiGuroLGC/RayShuttle"
+                                         Click="OnLinkClicked"
+                                         Content="github.com/JiGuroLGC/RayShuttle" />
+
+                        <!-- 撤回同意放在「关于」而不是「账户」：它与「退出登录」是两件事——
+                             退出登录只清登录态、保留同意记录，撤回则连同意记录一起清掉。 -->
+                        <Grid ColumnSpacing="16" Margin="0,6,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2">
+                                <TextBlock Style="{StaticResource TextRowTitle}" Text="撤回用户协议同意" />
+                                <TextBlock Style="{StaticResource TextCaption}"
+                                           Text="清除本地账号凭据并回到协议页，需重新阅读并同意后方可继续使用"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Click="OnRevokeAgreementClicked"
+                                    Style="{StaticResource GhostButton}">
+                                <TextBlock Text="撤回同意" />
+                            </Button>
+                        </Grid>
                     </StackPanel>
                 </Border>
                 <!--#endregion-->

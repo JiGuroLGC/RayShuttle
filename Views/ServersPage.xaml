@@ -13,6 +13,7 @@
     <Page.Resources>
         <common:BoolToVisibilityConverter x:Key="BoolToVisibility" />
         <common:BrushKeyConverter x:Key="BrushKey" />
+        <common:RegionFlagConverter x:Key="RegionFlag" />
 
         <!-- IsSourceGrouped 让 ListView 直接使用 ServerGroup 的 Key 作为分组标题 -->
         <CollectionViewSource x:Name="GroupedNodes" IsSourceGrouped="True" />
@@ -38,27 +39,51 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
+                <!--
+                    头像：优先显示国家/地区旗帜，**圆角矩形**（旗面原始比例 72×52，不裁两边）。
+                    品牌光点垫在下面当兜底：认不出地区、或该地区没有图片时旗帜什么都不画，
+                    露出来的就是光点，因此不需要额外的可见性判断。
+                -->
                 <Grid Grid.Column="0" Width="34" Height="34">
-                    <Ellipse Fill="{StaticResource BrandGradientDiagonalBrush}" Opacity="0.9" />
-                    <Ellipse Width="10"
-                             Height="10"
+                    <!--
+                        兜底光点必须**比旗片小**：旗片是 34×25，光点直径只要超过 25 就会从旗子
+                        上下探出来，形成"旗子下面又有个圆"的叠加感。24 能保证被完全盖住。
+                    -->
+                    <Ellipse Width="24"
+                             Height="24"
+                             Fill="{StaticResource BrandGradientDiagonalBrush}"
+                             Opacity="0.9" />
+                    <Ellipse Width="7"
+                             Height="7"
                              Fill="#FF050A14"
                              Opacity="0.65" />
+
+                    <Border Width="34"
+                            Height="25"
+                            VerticalAlignment="Center"
+                            CornerRadius="4">
+                        <Border.Background>
+                            <ImageBrush Stretch="UniformToFill"
+                                        ImageSource="{x:Bind RegionCode, Mode=OneWay, Converter={StaticResource RegionFlag}}" />
+                        </Border.Background>
+                    </Border>
                 </Grid>
 
                 <StackPanel Grid.Column="1"
                             VerticalAlignment="Center"
                             Spacing="2">
                     <StackPanel Orientation="Horizontal" Spacing="8">
+                        <!-- 右侧多了用量标签，名字要能收窄，否则窗口变小时会把列表撑开 -->
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}"
-                                   Text="{x:Bind Name}" />
+                                   Text="{x:Bind Name}"
+                                   TextTrimming="CharacterEllipsis" />
                         <Border Padding="8,2"
                                 VerticalAlignment="Center"
                                 Style="{StaticResource PillSurface}"
-                                Visibility="{x:Bind IsRecommended, Converter={StaticResource BoolToVisibility}}">
+                                Visibility="{x:Bind IsRecommended, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
                             <TextBlock FontSize="10"
                                        Foreground="{StaticResource BrandCyanBrush}"
                                        Text="推荐" />
@@ -67,15 +92,29 @@
                     <TextBlock Style="{StaticResource TextCaption}" Text="{x:Bind Subtitle}" />
                 </StackPanel>
 
-                <Border Grid.Column="2"
-                        Padding="11,5"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource PillSurface}">
-                    <TextBlock FontSize="12"
-                               FontWeight="SemiBold"
-                               Foreground="{x:Bind LatencyColorKey, Converter={StaticResource BrushKey}}"
-                               Text="{x:Bind LatencyText}" />
-                </Border>
+                <StackPanel Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                    <!-- 用量标签：所属通道的「已用 / 总量」。拿不到用量的节点（本地文件 / 备用节点）不显示。 -->
+                    <Border Padding="11,5"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource PillSurface}"
+                            Visibility="{x:Bind HasUsage, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock FontSize="12"
+                                   Foreground="{StaticResource TextTertiaryBrush}"
+                                   Text="{x:Bind UsageText, Mode=OneWay}" />
+                    </Border>
+
+                    <Border Padding="11,5"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource PillSurface}">
+                        <TextBlock FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{x:Bind LatencyColorKey, Mode=OneWay, Converter={StaticResource BrushKey}}"
+                                   Text="{x:Bind LatencyText, Mode=OneWay}" />
+                    </Border>
+                </StackPanel>
             </Grid>
         </DataTemplate>
     </Page.Resources>
@@ -97,7 +136,7 @@
 
             <StackPanel VerticalAlignment="Top" Spacing="8">
                 <TextBlock Style="{StaticResource TextTitle}" Text="节点" />
-                <TextBlock Style="{StaticResource TextBody}" Text="就近接入延迟最低的节点，光路更短，速度更稳。" />
+                <TextBlock Style="{StaticResource TextBody}" Text="每一条光路，都通往更快的远方。" />
                 <!-- 节点文件来自哪里、加载成功与否，直接说明，避免用户对着演示节点困惑 -->
                 <TextBlock x:Name="SourceStatusText" Style="{StaticResource TextCaption}" />
             </StackPanel>
@@ -106,10 +145,19 @@
                         VerticalAlignment="Top"
                         Orientation="Horizontal"
                         Spacing="10">
+                <!-- 横向 StackPanel 里子元素默认会被纵向拉伸到最高那个；一旦 TextBox 比默认高度高，
+                     文字就会贴顶、占位符看着不在中间。显式居中即可。 -->
                 <TextBox x:Name="SearchBox"
                          Width="204"
+                         VerticalAlignment="Center"
+                         VerticalContentAlignment="Center"
                          PlaceholderText="搜索城市或地区"
                          TextChanged="OnSearchTextChanged" />
+                <Button Click="OnRefreshClicked"
+                        Style="{StaticResource GhostButton}"
+                        ToolTipService.ToolTip="刷新延迟">
+                    <FontIcon FontSize="14" Glyph="&#xE72C;" />
+                </Button>
                 <Button Click="OnBestNodeClicked" Style="{StaticResource BrandButton}">
                     <StackPanel Orientation="Horizontal" Spacing="7">
                         <FontIcon FontSize="12" Glyph="&#xE945;" />
@@ -120,10 +168,12 @@
         </Grid>
         <!--#endregion-->
 
+        <!-- 双击某个节点 = 直接连上并回首页（单击仍只做选中） -->
         <ListView x:Name="NodeList"
                   Grid.Row="1"
                   Margin="0,6,0,0"
                   Background="Transparent"
+                  DoubleTapped="OnNodeListDoubleTapped"
                   ItemContainerStyle="{StaticResource NodeItemStyle}"
                   ItemTemplate="{StaticResource NodeItemTemplate}"
                   ItemsSource="{Binding Source={StaticResource GroupedNodes}}"
@@ -133,5 +183,23 @@
                 <GroupStyle HeaderTemplate="{StaticResource GroupHeaderTemplate}" />
             </ListView.GroupStyle>
         </ListView>
+
+        <!-- 加载层：节点尚未同步且暂无内容时覆盖列表，显示加载圈。探测延迟时也会短暂出现。 -->
+        <Grid x:Name="LoadingOverlay"
+              Grid.Row="1"
+              Visibility="Collapsed"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
+            <StackPanel Spacing="16">
+                <ProgressRing x:Name="LoadingRing"
+                              Width="42"
+                              Height="42"
+                              IsActive="True"
+                              Foreground="{StaticResource BrandCyanBrush}" />
+                <TextBlock HorizontalAlignment="Center"
+                           Style="{StaticResource TextBody}"
+                           Text="正在加载节点配置…" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

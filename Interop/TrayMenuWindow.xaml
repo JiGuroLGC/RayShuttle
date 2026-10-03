@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="RayShuttle.Interop.TrayMenuWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <!--
+        托盘右键菜单：一块品牌风格的深色卡片（圆角 / 细光边），取代系统那种老式弹出菜单。
+
+        高度是「算出来的」而不是自动撑开：WinUI 的 Window 不会按内容自适应大小，
+        所以这里固定每一行的高度，整个卡片的高度就是常量（见 TrayMenuWindow.MenuHeight）。
+        **改动下面的行高 / 行数时必须同步改 MenuHeight**，否则会被窗口裁掉。
+
+        **白边的根因与修复（重要，别再退回老写法）**：
+        1. 白色可能来自哪 —— ① 非客户区的 1px 系统描边（部分 Win11 上 SetBorderAndTitleBar
+           去不掉，DWMWA_BORDER_COLOR 又只对带边框的窗口生效）；② XAML island 在内容根元素
+           没盖到的区域画系统主题色（浅色主题下就是白）。
+        2. 修复是三层（代码见 TrayMenuWindow.xaml.cs）：
+           ① WS_POPUP 弹窗样式，彻底消灭非客户区；
+           ② 根容器 MenuRoot 铺满整个客户区并涂上与卡片相同的深色（PopupSurfaceBrush），
+              让「内容像素」没有白；
+           ③ ShowAtIcon 用 SetWindowRgn 把整窗直接裁成圆角矩形 —— region 之外的像素
+              一概不渲染，白边物理上不存在。
+        3. 卡片 CornerRadius=8 必须与 region 半径（也是 8 DIP）保持一致，
+           边框光边才会贴着窗口圆角走；改半径时两处要同步。
+    -->
+    <Grid RequestedTheme="Dark"
+          Background="{StaticResource PopupSurfaceBrush}">
+        <Border x:Name="MenuCard"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="{StaticResource PopupSurfaceBrush}"
+                BorderBrush="{StaticResource PopupBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="6">
+        <StackPanel VerticalAlignment="Top">
+            <!-- 状态区：一个状态点 + 状态文字 + 当前节点 -->
+            <StackPanel Padding="10,8,10,10" Spacing="3">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Ellipse x:Name="StatusDot"
+                             Width="7"
+                             Height="7"
+                             VerticalAlignment="Center"
+                             Fill="{StaticResource TextTertiaryBrush}" />
+                    <TextBlock x:Name="StatusText"
+                               VerticalAlignment="Center"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Text="未连接" />
+                </StackPanel>
+                <TextBlock x:Name="NodeText"
+                           Margin="15,0,0,0"
+                           MaxLines="1"
+                           Style="{StaticResource TextCaption}"
+                           Text="未选择节点"
+                           TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+
+            <Button Style="{StaticResource MenuItemButton}" Click="OnConnectClicked">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon x:Name="ConnectGlyph" FontSize="14" Glyph="&#xE768;" />
+                    <TextBlock x:Name="ConnectText" Text="连接" />
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MenuItemButton}" Click="OnOpenClicked">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon FontSize="14" Glyph="&#xE8A7;" />
+                    <TextBlock Text="打开光梭" />
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MenuItemButton}" Click="OnSettingsClicked">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon FontSize="14" Glyph="&#xE713;" />
+                    <TextBlock Text="设置" />
+                </StackPanel>
+            </Button>
+
+            <Rectangle Height="1"
+                       Margin="8,4,8,4"
+                       Fill="{StaticResource HairlineBrush}" />
+
+            <Button Style="{StaticResource MenuItemButton}" Click="OnExitClicked">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon FontSize="14" Glyph="&#xE7E8;" />
+                    <TextBlock Text="退出" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        </Border>
+    </Grid>
+</Window>
